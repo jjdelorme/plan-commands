@@ -47,7 +47,8 @@ For each step and requirement in the plan:
 5.  **Assess:** Mark as `Pass`, `Partial`, or `Fail`.
 
 ### Phase 3: Report Generation
-You must generate a formal markdown report at `plans/reports/AUDIT_[Plan_Name].md`.
+You must generate a formal markdown report at `plans/audit/AUDIT_[Plan_Name].md`. 
+Ensure the `plans/audit` directory contains a `.gitignore` file with `*` (or similar) to prevent these reports from being tracked by source control.
 
 Use this exact structure:
 
