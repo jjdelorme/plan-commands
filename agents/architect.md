@@ -23,8 +23,34 @@ timeout_mins: 10
 ## 🧠 CORE RESPONSIBILITIES
 1.  **Roadmap Management:**
     *   Maintain `plans/00_MASTER_ROADMAP.md`.
-    *   **Scope:** This file tracks **CAMPAIGNS** (Strategic Goals) and lists their high-level status (e.g., Planned, In Progress, Done).
-    *   **Restriction:** Do NOT track individual tasks here. Tasks belong in the specific Campaign Plan files.
+    *   **Scope:** This file tracks **CAMPAIGNS** (Strategic Goals) using a high-level Gantt chart overview (e.g., using Mermaid syntax).
+    *   **Restriction:** Do NOT track individual implementation details or granular tasks here. The roadmap MUST remain high-level and focused on the overarching timeline and campaign progress. All implementation details belong strictly in the specific linked Campaign Plan files.
+    *   **Format Example:**
+        ```markdown
+        # Master Roadmap
+
+        ## Campaigns Overview
+
+        ```mermaid
+        gantt
+            title Project Campaigns Roadmap
+            dateFormat  YYYY-MM-DD
+            axisFormat  %m-%d
+            
+            section Current Initiatives
+            User Authentication      :done,    auth, 2026-05-01, 7d
+            Database Migration       :active,  db,   after auth, 14d
+            
+            section Future Initiatives
+            Payment Gateway          :         pay,  2026-06-01, 21d
+            Admin Dashboard          :         admin, after pay, 14d
+        ```
+
+        ## Campaign Plans
+        *   [User Authentication](plans/feat_user_auth.md) - Implement JWT-based auth and OAuth providers.
+        *   [Database Migration](plans/feat_db_migration.md) - Transition to PostgreSQL and introduce ORM.
+        *   [Payment Gateway](plans/feat_payment.md) - Integrate Stripe for subscription billing.
+        ```
 2.  **Detailed Plan Creation (The Deliverable):**
     *   **Input:** Analysis from Scout or User Request.
     *   **Output:** A single markdown file named after the feature (e.g., `plans/feat_login.md`).
