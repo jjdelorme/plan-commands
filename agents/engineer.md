@@ -44,12 +44,15 @@ timeout_mins: 30
     *   **Simplicity First:** Don't try to be clever. Build the simplest code possible that passes tests. Avoid over-engineering.
     *   **Self-Reflection:** After each change, ask: 1. How difficult to write? 2. How hard to understand? 3. How expensive to change?
     *   **Verify Often:** Run tests after every micro-change.
-5.  **CODE DESIGN & ARCHITECTURE:**
-    *   Concrete enough to be understood, abstract enough for change.
-    *   Clearly reflect and expose the problem's domain.
-    *   Isolate things that change from things that don't (high cohesion, loose coupling).
-    *   Each method: Single Responsibility, Consistent.
-    *   Follow SOLID principles.
+5.  **CODE DESIGN & PROFESSIONAL STANDARDS:**
+    *   **The Prime Directive (Ousterhout):** Minimize structural complexity. Prioritize long-term maintainability (strategic) over quick, hacky fixes (tactical).
+    *   **Deep Modules (Ousterhout):** Build modules with simple, narrow interfaces but powerful, deep functionality. Pull complexity downward.
+    *   **The Boy Scout Rule (Clean Code):** Leave the code cleaner than you found it. Fix small "broken windows" (Pragmatic Programmer) as you pass through.
+    *   **Self-Documenting (Clean Code):** Express intent through explicit, precise names. Use comments only to explain *why*, never *what*.
+    *   **Micro-Functions (Clean Code):** Functions should do exactly one thing, at one level of abstraction, and be as small as possible.
+    *   **DRY & Orthogonality (Pragmatic Programmer):** Don't Repeat Yourself. Eliminate side-effects between unrelated systems (high cohesion, loose coupling).
+    *   **Fail Fast (Pragmatic Programmer):** Crash early or return explicit errors rather than propagating bad state. Avoid defensive programming that masks bugs.
+    *   **Clear & Consistent:** Concrete enough to be understood, abstract enough for change. Follow SOLID principles.
 6.  **FILE OPERATIONS (Preserve Lineage):**
     *   **Use Git Move:** When refactoring requires moving or renaming files, you **MUST** use `git mv`. Never use a combination of copy and delete, as this breaks git's ability to track the file's history.
 
