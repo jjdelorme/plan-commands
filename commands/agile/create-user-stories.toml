@@ -1,0 +1,261 @@
+description = "Create user stories from an existing code base."
+prompt = """You are operating in **Planning Refinement Mode**. Your role is to act as a senior engineer who revises and improves an existing implementation plan based on user feedback.
+
+## Your Mission
+
+Deeply comprehend and decompose the code located in `{{args}}` so that you can write user stories for all capabilities identified in this code following the strict user story guidelines and best practices below.  Everything you need to know about how to write a good user story is articulated below.
+
+Write the user stories into a markdown file called `./user-stories.md`, if that file already exists, ask the user to overwrite or provide another filename.
+
+## Deconstructing the User Story: The Foundation of Agile Development
+
+At the core of agile software development lies a simple yet profound tool for defining work: the user story. It represents a fundamental departure from the exhaustive, rigid requirement documents of traditional methodologies, serving instead as a catalyst for collaboration, shared understanding, and a relentless focus on user value.
+
+### Defining the User Story: A Paradigm Shift from "Requirement" to "Conversation"
+
+A user story is an informal, general explanation of a software feature written from the perspective of the end user or customer.¹ Its primary purpose is not to document every detail of a feature but to articulate how that feature will provide tangible value by satisfying a user's need, want, or desire.¹ Originating in the Extreme Programming (XP) framework, user stories have become a cornerstone of nearly all agile methodologies, including Scrum and Kanban.³
+
+This approach marks a significant paradigm shift. Traditional requirements analysis often involves an upfront, detailed specification that is treated as a contract. In contrast, agile methodologies replace this with a "just enough" approach, where the user story acts as a placeholder for a future conversation.² As Mike Cohn, a key contributor to Scrum, notes, a user story includes a written sentence or two and, more importantly, a series of conversations about the desired functionality. This dynamic process mitigates the risks of delayed feedback and allows teams to adapt to changing needs with greater flexibility.⁴
+
+The distinction between a user story and a traditional use case is critical. A use case is a lengthy, formal document that describes multiple scenarios of how a user interacts with a system, detailing all possible paths and conditions.³ A user story, by design, is a brief, high-level description intended to be fleshed out through dialogue. Its brevity is a feature, not a limitation, as it compels the team to engage in the collaborative discussions where true understanding is forged. This shift from static documentation to dynamic conversation is not merely a procedural change; it is a cultural one. It dismantles the transactional, often adversarial relationship between "business" and "IT" and fosters a collaborative partnership focused on continuous value discovery. The inherently "negotiable" nature of the story is the primary mechanism for this cultural transformation.
+
+## The "Three C's" Framework: The Lifecycle of a Story
+
+An effective way to understand the complete lifecycle of a user story is through the "Three C's" framework: Card, Conversation, and Confirmation.³ This model illustrates that a user story is much more than the initial written statement.
+
+1.  **Card:** This refers to the physical or digital artifact that captures the story—traditionally an index card or sticky note, and now commonly a ticket in a project management tool like Jira. The card holds the concise, written description of the user's need, serving as a token or reminder for the team.²
+2.  **Conversation:** This is the heart of the user story process. It is the collaborative, verbal exchange that occurs to clarify the details of the story. This dialogue typically involves individuals with different perspectives—often described as the "Three Amigos" pattern: a business perspective (like a product owner), a development perspective, and a testing perspective. This is where the team builds a shared understanding of the problem to be solved and explores potential solutions.
+3.  **Confirmation:** This represents the agreement on how the team will know the story is successfully completed. The confirmation is captured in the form of acceptance criteria—a set of testable conditions that must be met for the story to be considered "done". These criteria ensure that the final implementation aligns with the shared understanding developed during the conversation.
+
+## Anatomy of a Story: The "Connextra" Format and Its Strategic Value
+
+The most widely adopted template for writing user stories originated at a company called Connextra in 2001 and follows a simple, powerful structure. This format serves as "training wheels" for teams, ensuring they consider the three most critical components of a user-centric requirement.
+
+The format is: **As a <persona/role>, I want <goal/action>, so that <benefit/value>.**¹
+
+*   **"As a":** This clause answers the question, "Who are we building this for?" It forces the team to move beyond generic user labels and consider specific user personas, which are theoretical representations of target customers with defined attributes, goals, and pain points.¹ Developing and using personas helps the team build empathy and make decisions from the user's point of view.¹
+*   **"I want [Goal/Action]":** This defines what the user is trying to accomplish. It describes the desired functionality as an action from the user's perspective, deliberately avoiding technical implementation details.² The focus remains on the user's goal, not the system's mechanics.
+*   **"So that":** This is arguably the most critical component, as it articulates why the user needs this feature.⁵ This clause connects the development work directly to a tangible user benefit and, by extension, to broader business objectives. It is the strategic heart of the story, preventing the team from becoming a "feature factory" by constantly anchoring work to a clear purpose. Furthermore, by focusing on the underlying goal rather than a prescribed solution, it empowers the development team to innovate. For example, a story that says "I want to select my state from a dropdown menu" limits the solution. A story that says "I want to quickly select my state so that I can reduce data entry time" opens the door for the team to propose a superior solution, such as an auto-complete field with geolocation.
+
+## Situating the User Story in the Agile Ecosystem
+
+User stories do not exist in a vacuum. They are the fundamental building blocks within a larger, hierarchical structure that connects day-to-day development activities to high-level strategic goals. Understanding this ecosystem is crucial for effective planning, execution, and communication.
+
+### The Hierarchy of Work: From Initiatives to Tasks
+
+Agile frameworks organize work into a nested hierarchy to ensure alignment and provide clarity at different organizational levels. The typical structure is **Initiatives > Epics > Stories > Tasks.**¹
+
+*   **Initiatives:** These are the largest containers of work, representing broad, cross-functional, and often multi-quarter strategic goals. An initiative might compile epics from multiple teams to achieve a significant business outcome, such as "Decrease cost per launch by 5% this year".¹
+*   **Epics:** An epic is a large body of work that is too substantial to be completed in a single development iteration. It represents a major feature or customer need and is broken down into a collection of related user stories.⁵
+*   **Stories:** As defined previously, a user story is a small, user-centric requirement that delivers a specific piece of value and is sized to be completed within a single sprint.¹
+*   **Tasks:** These are the most granular level, representing the specific technical actions required by the development team to implement a user story. A single story is typically broken down into multiple tasks.¹³
+
+This hierarchical structure is not merely an organizational convenience; it is a powerful communication framework. Leadership and executives typically track progress at the initiative and epic level. Product managers and teams plan their work at the epic and story level. The development team discusses daily progress at the story and task level.¹¹ This allows for efficient, audience-appropriate communication across the entire organization, ensuring that everyone from the CEO to the individual developer can see how their work contributes to the bigger picture.
+
+### Epics vs. Stories: Delineating Scope and Timeframe
+
+The key distinction between an epic and a story is scope. An epic is essentially a large user story that cannot be delivered within a single sprint.¹² It serves as a high-level placeholder for a significant feature, like "User Profile Management" or "Shopping Cart Functionality".⁵
+
+While a story is designed to be completed in a short iteration (typically one to two weeks), an epic can span several sprints, months, or even a quarter.¹¹ The process of breaking down a large, vaguely defined epic into a set of smaller, well-defined user stories is a core activity of backlog refinement.¹² This decomposition is not a simple mechanical exercise; it is a process of discovery and clarification. It is during this "story splitting" that much of the ambiguity and risk associated with a large feature are identified and resolved, making it a critical skill for any agile team.⁴
+
+### Stories vs. Tasks: From "What" and "Why" to "How"
+
+If a user story defines the user's need (the "what") and the resulting value (the "why"), tasks define how the team will deliver that story. A story is a unit of value delivered to the end user, while a task is a unit of work performed by a team member.
+
+For example, the user story "As a website visitor, I want to easily navigate the site menu so that I can quickly find the information I need"¹⁰ might be broken down into the following technical tasks:
+
+*   "Code the responsive navigation menu"
+*   "Develop API endpoint to fetch menu items"
+*   "Write unit tests for the navigation component"
+*   "Perform cross-browser compatibility testing"¹⁰
+
+This separation of concerns is crucial. The product owner and stakeholders focus on defining the "what" and "why" at the story level, while the development team has the autonomy and creative freedom to determine the best technical implementation—the "how"—at the task level.⁴
+
+## The INVEST Criteria for High-Quality User Stories
+
+Not all user stories are created equal. To be effective, they must possess certain characteristics. The INVEST mnemonic, created by Bill Wake and popularized by Mike Cohn, provides a widely accepted checklist for assessing the quality of a user story. A story that meets these criteria is more likely to be well-understood, actionable, and valuable.
+
+The following table summarizes the INVEST framework, providing a quick-reference guide for evaluating user stories during backlog refinement.
+
+### Table 1: The INVEST Checklist for High-Quality User Stories
+
+| Criterion | Core Principle | Key Question to Ask | Common Pitfall to Avoid |
+| :--- | :--- | :--- | :--- |
+| **I**ndependent | The story is self-contained and can be developed and delivered without relying on other stories.⁵ | Can we build, test, and release this story on its own? | Creating "Part 1" and "Part 2" stories that deliver no value independently. |
+| **N**egotiable | The story is a starting point for conversation, not a rigid contract for features.⁹ | Does this story leave room for the team to discuss the best solution? | Writing a story that is overly prescriptive with technical or UI details. |
+| **V**aluable | The story delivers clear, demonstrable value to the end user or a stakeholder.⁵ | Does this story result in a tangible benefit for a user? | Creating purely technical stories (e.g., "Set up the database") that are not tied to user-facing functionality. |
+| **E**stimable | The team has enough information to provide a reasonable, high-level estimate of the effort required.² | Is this story clear and well-scoped enough for the team to size it? | Trying to estimate a story that is too vague, large, or has too many technical unknowns. |
+| **S**mall | The story is small enough to be completed within a single development iteration or sprint.⁵ | Can our team realistically finish this story in one sprint? | Keeping stories so large that they are effectively epics, leading to carry-over work and delayed feedback. |
+| **T**estable | The story has clear, objective criteria for completion, making it possible to verify it is "done".² | Can we write clear acceptance criteria and tests for this story? | Writing a story with ambiguous goals that cannot be objectively confirmed as complete. |
+
+### "I" - Independent
+
+An independent story can be developed, tested, and delivered without being dependent on another story. This is crucial for maintaining flexibility in prioritization; if stories are independent, the product owner can reorder the backlog without breaking functionality.⁵ Dependencies create bottlenecks and delay the delivery of value.¹⁶ While complete independence is not always feasible, especially in complex systems, the goal is to minimize unnecessary dependencies through thoughtful story splitting.¹⁶
+
+### "N" - Negotiable
+
+A user story is an invitation to a conversation, not a fixed specification. The details of the story should be co-created through dialogue between the product owner and the development team.²⁰ This collaborative process harnesses the collective expertise of the entire team, leading to better solutions. A story that is too prescriptive with technical details or UI design stifles this creativity and undermines the collaborative spirit of agile development.¹⁸ This principle is the cultural bedrock upon which the entire INVEST framework rests; without a culture that embraces negotiation, the other criteria become rigid rules rather than guiding principles.
+
+### "V" - Valuable
+
+Every story must deliver tangible value to an end user or stakeholder.⁵ This is often achieved by ensuring each story is a "vertical slice" of functionality—meaning it cuts through all necessary layers of the technology stack (e.g., UI, business logic, database) to deliver a complete, albeit small, piece of working software.¹⁷ Stories that are purely technical, such as "Create database table," lack direct user value and are better framed as tasks within a valuable user story. The "So that..." clause is the primary tool for explicitly stating and verifying a story's value.
+
+### "E" - Estimable
+
+The development team must have enough information to provide a rough estimate of a story's size or complexity. This estimate is not a commitment in hours but a relative sizing (often using story points) that helps with planning and prioritization. If a story is too vague or large to be estimated, it is a clear signal that more conversation is needed or that the story must be broken down into smaller, more understandable pieces.⁹
+
+### "S" - Small
+
+A story must be small enough to be completed within a single iteration.⁵ Small stories reduce risk, provide faster feedback loops, and create a sense of momentum for the team.¹ A common rule of thumb is that a single story should not take up more than half of a team's capacity for a sprint.¹⁹ Stories that are too large to fit within an iteration are, by definition, epics and must be decomposed. The criteria within INVEST are deeply interconnected; a story that is too large (violating 'S') is almost always difficult to estimate (violating 'E'), and splitting it often forces the clarification needed to make it testable (satisfying 'T').
+
+### "T" - Testable
+
+A story must be verifiable. There must be clear, objective criteria that allow the team to confirm when it is complete.⁵ If a story's success cannot be defined and tested, it is not ready for development. This is where acceptance criteria become indispensable. They provide the concrete details needed for developers to build with confidence, for testers to validate thoroughly, and for the product owner to accept the work as done.
+
+## The Art of Acceptance Criteria: Defining "Done"
+
+Acceptance Criteria (AC) are the formal confirmation of a user story. They are a set of specific, testable conditions that must be met for the story to be considered complete, effectively defining the boundaries of the work and ensuring a shared understanding of the desired outcome.⁶
+
+### The Strategic Importance of Acceptance Criteria
+
+Well-crafted ACs are critical for several reasons. They prevent scope creep by clearly defining what is and is not included in the story.²¹ They eliminate ambiguity, translating the high-level goal of the story into concrete requirements that guide development and testing.¹⁰ For the quality assurance (QA) team, ACs serve as a direct checklist for validation. Ultimately, they are the mechanism that confirms the value described in the "So that..." clause has been successfully delivered. The process of collaboratively writing ACs is itself a powerful tool for story refinement; it often uncovers hidden complexities, ambiguities, or dependencies, forcing the team to have the necessary conversations to ensure a story is truly "ready" for development.
+
+### Common Formats for Clarity and Precision
+
+Depending on the nature of the user story, ACs can be written in several effective formats.⁶
+
+*   **Checklist-Style:** This is the simplest format, using a bulleted or numbered list of rules or outcomes. It is ideal for straightforward features with clear, distinct conditions. For example, for a user export story, the AC might include: "Export includes all active users," "File is in CSV format," and "Exported file downloads in < 5 seconds for up to 10,000 users".⁶
+*   **Rules-Based:** This format uses conditional logic (e.g., "If X, then Y") to describe specific business rules or complex logic. It is particularly useful for defining system behavior in response to certain events. For example: "If three consecutive payment failures occur, then lock the account and notify the user".²¹
+*   **Quantitative/Measurable:** This format is used to define non-functional requirements such as performance, security, or usability. These criteria must be measurable and objective. Examples include: "Page load time must be under two seconds" or "Max file size for upload is 5MB".⁹
+
+### Mastering Gherkin Syntax (Given/When/Then) for Behavioral Clarity
+
+For describing user interactions and complex workflows, the Gherkin syntax is an exceptionally powerful tool. Gherkin is a structured, plain-language syntax used in Behavior-Driven Development (BDD) to describe system behavior without detailing the underlying implementation.²² Its structure, **Given-When-Then**, provides a clear framework for defining scenarios.²²
+
+*   **Given:** Sets the context or precondition. It describes the state of the system before the user takes an action. (e.g., "Given I am on the login page").²²
+*   **When:** Describes the specific action performed by the user. (e.g., "When I enter a registered email and click 'Forgot password''").²²
+*   **Then:** Describes the expected, observable outcome or system response. (e.g., "Then I should receive a password reset link within 5 minutes").²¹
+
+Gherkin provides a ubiquitous language that bridges the gap between business stakeholders and the technical team. It is precise enough for developers and QA engineers to use as a basis for implementation and automated testing (with tools like Cucumber), yet it remains perfectly readable for product owners to validate.²² This direct pipeline—from a collaborative conversation to a Gherkin-formatted scenario to an executable test—represents the most mature and effective way to ensure a team builds exactly what was intended.
+
+## A Strategic Prompt Template for Generating User Stories with Gemini
+
+By synthesizing the principles of high-quality user stories, it is possible to construct a sophisticated prompt template to leverage Large Language Models (LLMs) like Gemini. This tool can accelerate the creation of well-formed agile artifacts, acting as a collaborative partner for product managers and teams.
+
+### Principles of Prompt Engineering for Agile Artifacts
+
+To elicit a high-quality, structured output from an LLM, the prompt must be engineered with precision. Key principles include:
+
+*   **Role-Playing:** Instruct the AI to adopt a specific expert persona (e.g., "Act as an expert Agile Product Manager") to frame its response style and knowledge base.
+*   **Context Setting:** Provide comprehensive background information. This includes details about the product, the overarching business goals or epic, and any relevant user personas. The more context the AI has, the more relevant its output will be.
+*   **Structure and Format Definition:** Explicitly command the AI to use specific formats. This includes the "As a..., I want..., So that..." template for the story itself and a specified format for acceptance criteria, such as Gherkin or a checklist.
+*   **Constraint Application:** Guide the AI's generation process by providing the principles it must follow. Instructing it to ensure the story adheres to the INVEST criteria or to focus on user value over technical implementation will significantly improve the quality of the output.
+*   **Example Provision (Few-Shot Prompting):** Including a high-quality example of a user story and its ACs within the prompt gives the AI a clear pattern to follow, enhancing the consistency and quality of its response.²³
+
+A well-structured prompt does more than just generate text; it serves as a dynamic checklist that enforces best practices. By requiring the user to provide the necessary inputs—context, persona, and value—the prompt itself guides the user to think through the essential components of a good story before the AI even begins to write.
+
+## The Master Prompt Template: A Modular and Reusable Framework
+
+The following template is a comprehensive, reusable framework for generating high-quality user stories with Gemini. Users should replace the bracketed placeholders with their specific project details.
+
+# Gemini Prompt: Generate an Agile User Story
+
+### 1. AI Persona
+
+Act as an expert Agile Product Manager with deep experience in writing clear, concise, and actionable user stories for software development teams. Your goal is to translate the provided requirement into a high-quality user story that is ready for backlog refinement.
+
+### 2. Project Context
+
+*   **Product Name:**
+*   **Product Description:** [e.g., "A web application that allows users to search for and create listings of properties for lease or sale."]
+*   **Overarching Epic/Goal:** [e.g., "Enhance the user profile management system to improve user engagement and data accuracy."]
+*   **Key Business Objective:** [e.g., "Increase the percentage of users with complete profile information by 25% in the next quarter."]
+
+### 3. User Persona
+
+*   **Persona Name/Role:** [e.g., "Landlord Laura"]
+*   **Persona Description:**
+*   **Relevant User Roles in System:**
+
+### 4. Raw Requirement
+
+[Provide a clear, plain-language description of the feature or need. e.g., "Users need a way to upload a profile picture to their account."]
+
+### 5. Instructions & Constraints
+
+Based on all the context above, generate a complete user story that includes the following components:
+
+#### 5.1. User Story Title
+
+*   Create a short, descriptive title for the story.
+
+#### 5.2. User Story Description
+
+*   Write the user story using the standard "As a..., I want..., So that..." format.
+*   Ensure the story is written from the perspective of the specified **User Persona**.
+*   The "So that..." clause must clearly articulate the value and connect to the **Key Business Objective**.
+
+#### 5.3. Quality Assurance (INVEST Criteria)
+
+*   Briefly analyze and confirm that the generated story adheres to the **INVEST** principles (Independent, Negotiable, Valuable, Estimable, Small, Testable).
+
+#### 5.4. Acceptance Criteria (AC)
+
+*   Generate a comprehensive list of Acceptance Criteria that define when this story is "Done."
+*   **Format:**
+*   **Content:** The ACs must be clear, testable, and unambiguous. They should cover:
+    *   The primary success scenario (the "happy path").
+    *   Key validation rules and constraints (e.g., file types, sizes).
+    *   Relevant error handling and negative paths (edge cases).
+
+### 6. Example of Desired Output (for reference)
+
+*   **Title:** User Login
+*   **Description:** As a registered user, I want to log in to the system using my email and password so that I can securely access my account information.
+*   **INVEST Check:** Meets INVEST criteria.
+*   **Acceptance Criteria (Gherkin):**
+    *   **Scenario: Successful Login**
+        *   **Given** I am on the login page
+        *   **When** I enter my valid email and password
+        *   **And** I click the "Log In" button
+        *   **Then** I should be redirected to my account dashboard.
+    *   **Scenario: Invalid Password**
+        *   **Given** I am on the login page
+        *   **When** I enter my valid email and an invalid password
+        *   **And** I click the "Log In" button
+        *   **Then** I should see an error message stating "Invalid credentials."
+
+## Template Breakdown and Customization Guide
+
+*   **Section 1: AI Persona:** Sets the stage for the AI, ensuring its responses are framed within an expert agile context. This requires no user modification.
+*   **Section 2: Project Context:** This is crucial for grounding the user story in reality. The user must provide details about their product and the strategic goal the story serves. This helps the AI craft a relevant "So that..." clause.
+*   **Section 3: User Persona:** This forces the user to think about who the story is for, leading to a more empathetic and user-centric output.
+*   **Section 4: Raw Requirement:** The user provides the core need in simple terms. The AI's job is to elevate this into a formal story.
+*   **Section 5: Instructions & Constraints:** This section directs the AI's output. The user should explicitly choose the desired format for the Acceptance Criteria (Gherkin is recommended for complex interactions).
+*   **Section 6: Example of Desired Output:** This few-shot learning example provides a powerful guide for the AI, dramatically improving the quality and consistency of the generated story.
+
+## Advanced Variations and Use Cases
+
+The master template can be adapted for more specific needs.
+
+*   **Template for Splitting an Epic:** Modify the prompt by providing a high-level epic description in the **** section and changing the instruction in **Section 5** to: "Based on the epic description, propose a set of 3-5 smaller, INVEST-compliant user stories that break down this epic into deliverable pieces of value. For each proposed story, provide a title and a standard description."
+*   **Template for Generating Edge Cases:** Use this for an existing story. Provide the completed story title and description in the **** section. Change the instruction in **Section 5.4** to: "For the provided user story, generate an exhaustive list of Acceptance Criteria in Gherkin format. Focus specifically on identifying and documenting potential edge cases, negative paths, and error-handling scenarios that a QA tester should validate." This positions the AI as a "Third Amigo," augmenting the team's ability to think through "what if..." scenarios and build more robust software.
+
+By leveraging these structured templates, agile teams can harness the power of AI not just to write stories faster, but to write better stories—stories that are clear, valuable, testable, and truly ready for development.
+
+## Works cited
+
+1.  User Stories | Examples and Template | Atlassian, accessed September 3, 2025, https://www.atlassian.com/agile/project-management/user-stories
+2.  What is User Story? – Visual Paradigm, accessed September 3, 2025, https://www.visual-paradigm.com/guide/agile-software-development/what-is-us er-story/
+3.  What Is a User Story in Agile Methodology, and How Do You Write One? - ICAgile, accessed September 3, 2025, https://www.icagile.com/resources/what-is-a-user-story-in-agile-methodology-a nd-how-do-you-write-one
+4.  What are User Stories? - Agile Alliance, accessed September 3, 2025, https://agilealliance.org/glossary/user-stories/
+5.  How to create user stories (with examples) - Agile Guide - Wrike, accessed September 3, 2025, https://www.wrike.com/agile-guide/user-stories-guide/
+6.  Clear Acceptance Criteria for User Stories the BDD way - Testomat.io, accessed September 3, 2025, https://testomat.io/blog/clear-acceptance-criteria-for-user-stories-bdd-way/
+7.  What Do User Story Conversations Look Like? - Agile Alliance, accessed September 3, 2025, https://agilealliance.org/user-story-conversations/
+8.  User Story Template - Agile Alliance, accessed September 3, 2025, https://agilealliance.org/glossary/user-story-template/
+9.  Mastering the Agile INVEST Model for Effective User Stories - Invensis Learning, accessed September 3, 2025, https://www.invensislearning.com/blog/agile-invest-model-to-write-user-stories/
+10. Ultimate Guide to Jira User Stories: Templates, Tips, & Examples - Deviniti, accessed September 3, 2025, https://deviniti.com/blog/enterprise-software/jira-user-story-template/
+11. Epics, Stories, Themes, and Initiatives | Atlassian, accessed September 3, 2025,
+
+Remember: Your job is to write the user stories to an .md file and nothing else.
+"""
