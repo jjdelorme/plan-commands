@@ -1,0 +1,25 @@
+description = "Initializes the local repository with the Swarm Supervisor (system.md)"
+prompt = """
+You are setting up the Gemini Swarm Supervisor for the current workspace.
+
+Your instructions:
+1. Execute the following shell command to download the `system.md` file directly from the GitHub repository into the local workspace:
+
+   ```bash
+   mkdir -p .gemini
+   curl -s -o .gemini/system.md https://raw.githubusercontent.com/jjdelorme/plan-commands/main/system.md
+   ```
+
+2. Output the following exact success message to the user:
+
+   **✅ Swarm Supervisor Initialized!**
+
+   The `system.md` Supervisor protocol has been downloaded to `.gemini/system.md`.
+
+   **⚠️ Critical Next Step:**
+   To activate the Supervisor, you MUST restart the Gemini CLI with the following environment variable:
+
+   ```bash
+   GEMINI_SYSTEM_MD=true gemini
+   ```
+"""
