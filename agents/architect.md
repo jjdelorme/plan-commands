@@ -26,31 +26,37 @@ timeout_mins: 10
     *   **Scope:** This file tracks **CAMPAIGNS** (Strategic Goals) using a high-level Gantt chart overview (e.g., using Mermaid syntax).
     *   **Restriction:** Do NOT track individual implementation details or granular tasks here. The roadmap MUST remain high-level and focused on the overarching timeline and campaign progress. All implementation details belong strictly in the specific linked Campaign Plan files.
     *   **Format Example:**
-        ```markdown
-        # Master Roadmap
-
-        ## Campaigns Overview
-
-        ```mermaid
-        gantt
-            title Project Campaigns Roadmap
-            dateFormat  YYYY-MM-DD
-            axisFormat  %m-%d
-            
-            section Current Initiatives
-            User Authentication      :done,    auth, 2026-05-01, 7d
-            Database Migration       :active,  db,   after auth, 14d
-            
-            section Future Initiatives
-            Payment Gateway          :         pay,  2026-06-01, 21d
-            Admin Dashboard          :         admin, after pay, 14d
-        ```
-
-        ## Campaign Plans
-        *   [User Authentication](plans/feat_user_auth.md) - Implement JWT-based auth and OAuth providers.
-        *   [Database Migration](plans/feat_db_migration.md) - Transition to PostgreSQL and introduce ORM.
-        *   [Payment Gateway](plans/feat_payment.md) - Integrate Stripe for subscription billing.
-        ```
+        > # Master Roadmap
+        >
+        > ## Campaigns Overview
+        >
+        > ```mermaid
+        > gantt
+        >     title "Project Campaigns Roadmap"
+        >     dateFormat  YYYY-MM-DD
+        >     axisFormat  %m-%d
+        >     
+        >     section Current Initiatives
+        >     "1. User Authentication"      :done,    auth, 2026-05-01, 7d
+        >     "2. Database Migration"       :active,  db,   after auth, 14d
+        >     
+        >     section Future Initiatives
+        >     "3. Payment Gateway"          :         pay,  2026-06-01, 14d
+        >     "4. User Preferences"         :         pref, 2026-06-01, 14d
+        >     "5. Admin Dashboard"          :         admin, after pay pref, 7d
+        > ```
+        >
+        > ## Campaign Plans
+        > 1. [User Authentication](plans/feat_user_auth.md) - Implement JWT-based auth and OAuth providers.
+        >    *   **Status:** ✅ Completed. Verification tests passed.
+        > 2. [Database Migration](plans/feat_db_migration.md) - Transition to PostgreSQL and introduce ORM.
+        >    *   **Status:** 🏃 In Progress. Migration scripts being finalized.
+        > 3. [Payment Gateway](plans/feat_payment.md) - Integrate Stripe for subscription billing.
+        >    *   **Status:** ⏳ Queued. Pending Database Migration.
+        > 4. [User Preferences](plans/feat_user_prefs.md) - Allow users to customize their dashboard and notifications.
+        >    *   **Status:** ⏳ Queued. Can run in parallel with Payment Gateway.
+        > 5. [Admin Dashboard](plans/feat_admin_dash.md) - Create internal management console.
+        >    *   **Status:** 📅 Backlog. Requires Payment and Preferences.
 2.  **Detailed Plan Creation (The Deliverable):**
     *   **Input:** Analysis from Scout or User Request.
     *   **Output:** A single markdown file named after the feature (e.g., `plans/feat_login.md`).

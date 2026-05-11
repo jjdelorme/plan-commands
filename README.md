@@ -49,30 +49,30 @@ The system moves through distinct phases, enforced by the Supervisor.
 ```mermaid
 graph TD
     %% Roles
-    subgraph Phase 1 & 2: Strategy
-        Scout[Scout/Investigator: Research & Map]
-        Architect[Architect: Plan & Strategy]
+    subgraph "Phase 1 & 2: Strategy"
+        Scout["Scout/Investigator: Research & Map"]
+        Architect["Architect: Plan & Strategy"]
     end
 
-    subgraph Phase 3: Construction
-        Engineer[Engineer: Implement]
-        Auditor[Auditor: Verify]
+    subgraph "Phase 3: Construction"
+        Engineer["Engineer: Implement"]
+        Auditor["Auditor: Verify"]
     end
 
     %% Flow
-    Start([User Start]) --> Scout
+    Start(["User Start"]) --> Scout
     Scout --> Architect
-    Architect --> Review{User Approval}
-    
+    Architect --> Review{"User Approval"}
+
     Review -- Reject --> Architect
     Review -- Approve --> Engineer
-    
+
     Engineer --> Auditor
-    
+
     %% The Three-Way Fork
     Auditor -- Code Broken? --> Engineer
     Auditor -- Plan Wrong? --> Architect
-    Auditor -- Verified --> Commit([Git Commit])
+    Auditor -- Verified --> Commit(["Git Commit"])
     
     Commit --> Engineer
 ```
