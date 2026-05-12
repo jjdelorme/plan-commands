@@ -96,3 +96,14 @@ The core swarm is agnostic. To add deep codebase intelligence (like a Graph Data
 - For codebase investigation, you MUST delegate to the `scout` agent. Do NOT use the built-in investigator.
 - The `auditor` agent MUST utilize the `graphdb` skill for verifying changes.
 ```
+
+---
+
+## 📝 2. Agile Refinement Commands
+
+This toolkit also includes standalone utilities for refining your project requirements and mapping out new tasks, which are entirely separate from the automated agent swarm. 
+
+### User Story Generation
+*Generates agile user stories from an existing code base to help understand the current system or prepare for refactoring.*
+*   **Command:** `/agile:create-user-stories {{path/to/code}}`
+*   **Output:** `user-stories.md`
