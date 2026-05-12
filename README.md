@@ -39,9 +39,10 @@ This extension packages a portable, framework-agnostic AI agent swarm designed t
 
 ### The Agents
 *   **Supervisor (`system.md`)**: The Project Manager. Enforces the state machine, manages hand-offs, and gates Git commits.
-*   **Architect (`architect`)**: The Planner. Reads research, creates comprehensive step-by-step TDD implementation plans in the `plans/` directory.
+*   **Product Owner (`product_owner`)**: The Visionary. Translates human ideas into rigorous specifications (`spec.md`) through interactive "grilling" and manages the Master Roadmap (`00-ROADMAP.md`) and Release targeting.
+*   **Architect (`architect`)**: The Planner. Reads specs, creates comprehensive step-by-step TDD implementation plans in the `plans/active_campaigns/` directory.
 *   **Engineer (`engineer`)**: The Builder. Strictly follows the Architect's plans, writing tests and implementing changes via Red-Green-Refactor.
-*   **Auditor (`auditor`)**: The Gatekeeper. Verifies the Engineer's work. Compiles code, runs tests, and hunts for lazy AI shortcuts (TODOs, commented-out tests).
+*   **Auditor (`auditor`)**: The Gatekeeper. Verifies the Engineer's work against the spec and tests. Compiles code, runs tests, and hunts for lazy AI shortcuts.
 
 ### 🔄 Protocol Lifecycle
 The system moves through distinct phases, enforced by the Supervisor.
@@ -49,19 +50,20 @@ The system moves through distinct phases, enforced by the Supervisor.
 ```mermaid
 graph TD
     %% Roles
-    subgraph "Phase 1 & 2: Strategy"
-        Scout["Scout/Investigator: Research & Map"]
-        Architect["Architect: Plan & Strategy"]
+    subgraph "Phase 0 & 1: Product & Strategy"
+        PO["Product Owner: Spec & Roadmap"]
+        Architect["Architect: Plan & Contract"]
     end
 
-    subgraph "Phase 3: Construction"
+    subgraph "Phase 2 & 3: Construction"
         Engineer["Engineer: Implement"]
         Auditor["Auditor: Verify"]
     end
 
     %% Flow
-    Start(["User Start"]) --> Scout
-    Scout --> Architect
+    Start(["User Request"]) --> PO
+    PO -- Grills User --> PO
+    PO --> Architect
     Architect --> Review{"User Approval"}
 
     Review -- Reject --> Architect
@@ -74,7 +76,10 @@ graph TD
     Auditor -- Plan Wrong? --> Architect
     Auditor -- Verified --> Commit(["Git Commit"])
     
-    Commit --> Engineer
+    Commit --> CheckRelease{"Release Complete?"}
+    CheckRelease -- No --> Engineer
+    CheckRelease -- Yes --> Tag(["Git Tag & Release"])
+    Tag --> PO
 ```
 
 ### Workspace Maintenance: Archiving Plans
