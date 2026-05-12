@@ -1,6 +1,6 @@
 # Gemini Swarm & Modernization Toolkit
 
-A comprehensive Gemini CLI Extension that provides a **Multi-Agent Swarm** for autonomous software development, alongside specialized, step-by-step commands for **SQL-to-DDD Refactoring**.
+A comprehensive Gemini CLI Extension that provides a **Multi-Agent Swarm** for autonomous software development.
 
 **See** [Gemini CLI Extensions](https://github.com/google-gemini/gemini-cli/blob/main/docs/extensions/index.md) for more details.
 
@@ -33,7 +33,7 @@ While the agents (`architect`, `engineer`, `auditor`) are installed globally by 
 
 ---
 
-## 🤖 1. The Autonomous Swarm
+## 🤖 The Autonomous Swarm
 
 This extension packages a portable, framework-agnostic AI agent swarm designed to manage the software development lifecycle using a rigorous **Plan -> Act -> Verify** state machine.
 
@@ -96,57 +96,3 @@ The core swarm is agnostic. To add deep codebase intelligence (like a Graph Data
 - For codebase investigation, you MUST delegate to the `scout` agent. Do NOT use the built-in investigator.
 - The `auditor` agent MUST utilize the `graphdb` skill for verifying changes.
 ```
-
----
-
-## 🏗️ 2. DDD Refactoring Commands
-A specialized workflow for refactoring legacy code (specifically SQL) into a modern **.NET, Domain-Driven Design (DDD)** architecture.
-
-**Architecture:** .NET 10, C# 14, MediatR (CQRS), EF Core (Code-First).
-**Methodology:** Domain-Driven Design (DDD) via Test-Driven Development (TDD).
-
-### The Workflow
-**CRITICAL:** This pipeline is state-sensitive. After every step, review the output artifact, then type `/clear` to reset the context window to prevent "Context Pollution."
-
-#### Step 0: User Story Generation (Optional)
-*Generates agile user stories from existing code to help understand the current system.*
-*   **Command:** `/ddd:create-user-stories {{path/to/code}}`
-*   **Output:** `user-stories.md`
-
-#### Step 1: Deep Analysis (SQL)
-*Deep analysis of legacy Stored Procedures. Extracts business rules, data dictionaries, and test cases.*
-*   **Command:** `/sql:analyze {{path/to/legacy_proc.sql}}`
-*   **Output:** `ANALYSIS_[ProcName].md`
-
-#### Step 2: Logical Architecture
-*Transforms the Analysis into a pure Domain Model (Aggregates, Entities, Rules).*
-*   **Command:** `/ddd:logical {{ANALYSIS_[ProcName].md}}`
-*   **Output:** `LOGICAL_ARCHITECTURE.md`
-
-#### Step 3: Physical Architecture
-*Maps the Domain Model to .NET 10, MediatR, and EF Core patterns.*
-*   **Command:** `/ddd:physical {{LOGICAL_ARCHITECTURE.md}}`
-*   **Output:** `PHYSICAL_ARCHITECTURE.md`
-
-#### Step 4: Implementation Planning
-*Generates a step-by-step TDD execution plan.*
-*   **Command:** `/ddd:plan {{PHYSICAL_ARCHITECTURE.md}}`
-*   **Output:** `IMPLEMENTATION_PLAN.md`
-
-#### Step 5: Build & Implementation
-*Executes the plan using strict Red-Green-Refactor TDD.*
-*   **Command:** `/ddd:implement {{IMPLEMENTATION_PLAN.md}}`
-*   **Output:** Actual C# code in `src/` and tests in `tests/`.
-
-### The Quality Assurance Loop
-Once the code is built, do not ship it. Enter the **Review/Fix Loop**.
-
-#### Step 6: Code Review (Quality Gate)
-*Audits the code for "Laziness", Stubbing, and missing Business Rules.*
-*   **Command:** `/ddd:review`
-*   **Output:** `REVIEW_REPORT.md` (Look for `🔴 REJECT` or `🟢 PASS`)
-
-#### Step 7: Remediation (Self-Healing)
-*If Step 6 failed, this command fixes the specific issues listed in the report.*
-*   **Command:** `/ddd:fix {{REVIEW_REPORT.md}}`
-*   **Next Step:** Go back to **Step 6** (`/ddd:review`). Repeat until **PASS**.
