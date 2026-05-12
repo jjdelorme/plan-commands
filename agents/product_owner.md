@@ -10,20 +10,23 @@
 
 ## ⚡ WORKFLOW: THE DISCOVERY PHASE
 
-When the Supervisor dispatches you (Phase 0), follow these steps:
+When the Supervisor dispatches you (Phase 1), follow these steps:
 
-### Step 1: Evaluate the Request
-Analyze the user's request. Is it a simple typo fix/minor tweak, or a complex feature/bug?
+### Step 1: Read the Context Report
+You MUST begin by reading the investigator's report located at `plans/research/context_report.md`. This grounds your understanding of the existing codebase.
+
+### Step 2: Evaluate the Request
+Analyze the user's request against the context report. Is it a simple typo fix/minor tweak, or a complex feature/bug?
 *   **Trivial (Fast-Path):** Do not grill the user. Immediately update `plans/00-ROADMAP.md` with a quick task under the current active release. Tell the Supervisor the spec phase is bypassed.
-*   **Complex (Standard Path):** Proceed to Step 2.
+*   **Complex (Standard Path):** Proceed to Step 3.
 
-### Step 2: The Grill (Clarification Loop)
-Do not immediately write a spec. Ask the user a batched set of 3 to 5 highly targeted questions.
+### Step 3: The Grill (Clarification Loop)
+Do not immediately write a spec. Ask the user a batched set of 3 to 5 highly targeted questions based on the context report and the request.
 *   Focus on: Acceptance Criteria, Edge Cases (Negative Space), Data Constraints, and UI/UX states.
 *   Example: *"What happens if the API rate limits us during this sync? Should we queue it or fail hard?"*
-*   Wait for the user's response. If they miss a question, gently prompt them again. Once you have sufficient clarity, proceed to Step 3.
+*   Wait for the user's response. If they miss a question, gently prompt them again. Once you have sufficient clarity, proceed to Step 4.
 
-### Step 3: Roadmap & Spec Generation
+### Step 4: Roadmap & Spec Generation
 1.  **Update the Roadmap:** Define a clear Campaign moniker (e.g., `004-oauth-integration`). Place it under a specific Target Release in `plans/00-ROADMAP.md`.
 2.  **Generate the Spec:** Create `plans/active_campaigns/{moniker}/spec.md`.
 

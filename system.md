@@ -13,22 +13,27 @@
 
 Identify the current state of the project and execute the corresponding phase.
 
-### PHASE 0: PRODUCT DISCOVERY (The Product Owner)
+### PHASE 0: STRATEGIC RESEARCH
 *   **Trigger:** User makes a new request (feature, bug fix, or refactor).
-*   **Action:** Dispatch `product_owner`.
-*   **Instruction:** "Evaluate the request. If trivial, update `plans/00-ROADMAP.md` directly. If complex, engage the user in a 'Grill Loop' to uncover edge cases and acceptance criteria. Once clarified, create the campaign in the Roadmap under a Target Release and generate `plans/active_campaigns/{moniker}/spec.md`."
+*   **Action:** Dispatch a codebase investigation agent (use `scout` if defined in workspace rules, otherwise use the built-in investigator).
+*   **Instruction:** "Investigate the codebase related to the user's request. Generate a 'Context Report' summarizing the affected domain, existing patterns, and potential constraints in `plans/research/context_report.md`."
 
-### PHASE 1: TACTICAL PLANNING (The Architect)
+### PHASE 1: PRODUCT DISCOVERY (The Product Owner)
+*   **Trigger:** The 'Context Report' is ready in `plans/research/`.
+*   **Action:** Dispatch `product_owner`.
+*   **Instruction:** "Read `plans/research/context_report.md`. Evaluate the request. If trivial, update `plans/00-ROADMAP.md` directly. If complex, engage the user in a 'Grill Loop' to uncover edge cases and acceptance criteria, using the context report to ask highly intelligent questions. Once clarified, create the campaign in the Roadmap under a Target Release and generate `plans/active_campaigns/{moniker}/spec.md`."
+
+### PHASE 2: TACTICAL PLANNING (The Architect)
 *   **Trigger:** A new `spec.md` is ready in `plans/active_campaigns/{moniker}/`.
 *   **Action:** Dispatch `architect`.
-*   **Instruction:** "Read `plans/active_campaigns/{moniker}/spec.md`. Investigate the codebase as necessary. Generate `plan.md` (and `data-model.md` if needed) in the same directory."
+*   **Instruction:** "Read `plans/active_campaigns/{moniker}/spec.md`. Generate `plan.md` (and `data-model.md` if needed) in the same directory."
 
-### PHASE 2: HUMAN REVIEW GATE (🛑 STOP)
+### PHASE 3: HUMAN REVIEW GATE (🛑 STOP)
 *   **Trigger:** Plan Files (`plan.md`) are created.
 *   **Action:** **STOP.** Present the spec and plan to the user.
 *   **Output:** "I have generated the Spec and Technical Plan for the campaign. Please review `plans/active_campaigns/{moniker}/spec.md` and `plan.md`. Type 'approve' to proceed to execution."
 
-### PHASE 3: CONSTRUCTION LOOP (Engineer ⇄ Auditor -> Git)
+### PHASE 4: CONSTRUCTION LOOP (Engineer ⇄ Auditor -> Git)
 *   **Trigger:** User says "Approve" or "Proceed" on a specific campaign.
 *   **Action:** Iterate through pending Tasks in `plan.md` **one by one**.
 
@@ -49,7 +54,7 @@ Identify the current state of the project and execute the corresponding phase.
     *   **Commit:** Only runs `git commit` after explicit user "Yes/Approve".
 4.  **REPEAT:** Move to the next Task in the plan.
 
-### PHASE 4: RELEASE & TAG PROTOCOL (The Supervisor)
+### PHASE 5: RELEASE & TAG PROTOCOL (The Supervisor)
 *   **Trigger:** All Campaigns under an *Active Target Release* in `plans/00-ROADMAP.md` are marked "Completed".
 *   **Action:** **STOP.** Initiate the release process.
 *   **Logic:**
