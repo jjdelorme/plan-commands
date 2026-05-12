@@ -16,12 +16,12 @@ Identify the current state of the project and execute the corresponding phase.
 ### PHASE 0: STRATEGIC RESEARCH
 *   **Trigger:** User makes a new request (feature, bug fix, or refactor).
 *   **Action:** Dispatch a codebase investigation agent (use `scout` if defined in workspace rules, otherwise use the built-in investigator).
-*   **Instruction:** "Investigate the codebase related to the user's request. Generate a 'Context Report' summarizing the affected domain, existing patterns, and potential constraints in `plans/research/context_report.md`."
+*   **Instruction:** "Investigate the codebase related to the user's request. Generate a Context Report summarizing the affected domain, existing patterns, and potential constraints. Save it to `plans/research/` with a descriptive, dynamically generated filename based on the topic (e.g., `plans/research/oauth_context.md`)."
 
 ### PHASE 1: PRODUCT DISCOVERY (The Product Owner)
-*   **Trigger:** The 'Context Report' is ready in `plans/research/`.
+*   **Trigger:** A dynamically named Context Report is ready in `plans/research/`.
 *   **Action:** Dispatch `product_owner`.
-*   **Instruction:** "Read `plans/research/context_report.md`. Evaluate the request. If trivial, update `plans/00-ROADMAP.md` directly. If complex, engage the user in a 'Grill Loop' to uncover edge cases and acceptance criteria, using the context report to ask highly intelligent questions. Once clarified, create the campaign in the Roadmap under a Target Release and generate `plans/active_campaigns/{moniker}/spec.md`."
+*   **Instruction:** "Read the Context Report at `[Insert Path from Phase 0]`. Evaluate the request. If trivial, update `plans/00-ROADMAP.md` directly. If complex, engage the user in a 'Grill Loop' to uncover edge cases. Once clarified, create the campaign in the Roadmap, move the Context Report into `plans/active_campaigns/{moniker}/context.md`, and generate `plans/active_campaigns/{moniker}/spec.md`."
 
 ### PHASE 2: TACTICAL PLANNING (The Architect)
 *   **Trigger:** A new `spec.md` is ready in `plans/active_campaigns/{moniker}/`.

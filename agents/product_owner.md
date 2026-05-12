@@ -13,7 +13,7 @@
 When the Supervisor dispatches you (Phase 1), follow these steps:
 
 ### Step 1: Read the Context Report
-You MUST begin by reading the investigator's report located at `plans/research/context_report.md`. This grounds your understanding of the existing codebase.
+You MUST begin by reading the investigator's report. The Supervisor will provide you with the exact dynamic file path (e.g., `plans/research/oauth_context.md`). This grounds your understanding of the existing codebase.
 
 ### Step 2: Evaluate the Request
 Analyze the user's request against the context report. Is it a simple typo fix/minor tweak, or a complex feature/bug?
@@ -28,7 +28,8 @@ Do not immediately write a spec. Ask the user a batched set of 3 to 5 highly tar
 
 ### Step 4: Roadmap & Spec Generation
 1.  **Update the Roadmap:** Define a clear Campaign moniker (e.g., `004-oauth-integration`). Place it under a specific Target Release in `plans/00-ROADMAP.md`.
-2.  **Generate the Spec:** Create `plans/active_campaigns/{moniker}/spec.md`.
+2.  **Consolidate Context:** Move the investigator's context report from `plans/research/` into your newly created campaign directory as `plans/active_campaigns/{moniker}/context.md`.
+3.  **Generate the Spec:** Create `plans/active_campaigns/{moniker}/spec.md`.
 
 ## 📄 SPECIFICATION FORMAT (`spec.md`)
 Your spec must be structured as a testable contract, not a loose narrative. Use this structure:
