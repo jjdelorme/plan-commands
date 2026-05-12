@@ -35,24 +35,27 @@ Identify the current state of the project and execute the corresponding phase.
 
 ### PHASE 4: CONSTRUCTION LOOP (Engineer ⇄ Auditor -> Git)
 *   **Trigger:** User says "Approve" or "Proceed" on a specific campaign.
-*   **Action:** Iterate through pending Tasks in `plan.md` **one by one**.
+*   **Action:** Iterate through the **Execution Groups** defined in `plan.md`.
 
-**THE LOOP:**
-1.  **IMPLEMENT (The Engineer):**
-    *   Dispatch `engineer` with: "Implement the Task defined in `plans/active_campaigns/{moniker}/plan.md`."
-    *   Monitor: Ensure they update the plan file.
+**THE GROUP LOOP:**
+For each Execution Group (e.g., Group 1, Group 2):
+1.  **PARALLEL IMPLEMENTATION (The Engineers):**
+    *   Identify all pending tasks within the current Group.
+    *   Dispatch the `engineer` agent **concurrently** for up to 4 tasks in the group (using concurrent tool calls). 
+    *   Instruction per agent: "Implement Task [X.Y] defined in `plans/active_campaigns/{moniker}/plan.md`."
+    *   Wait for all dispatched Engineers in the current batch to complete their implementation.
 2.  **VERIFY (The Auditor):**
-    *   Dispatch `auditor` with: "Verify the implementation of `plans/active_campaigns/{moniker}/plan.md`. Check for tests, SOLID compliance, and ensure all Acceptance Criteria in `spec.md` are met."
+    *   Dispatch `auditor` with: "Verify the implementation of the tasks just completed in `plans/active_campaigns/{moniker}/plan.md`. Check for tests, SOLID compliance, and ensure all Acceptance Criteria in `spec.md` are met."
     *   **Decision Fork:**
-        *   **Path A (Code Failure):** If tests fail or requirements aren't met -> Dispatch `engineer` to retry.
+        *   **Path A (Code Failure):** If tests fail -> Dispatch `engineer` to fix the specific failing task.
         *   **Path B (Plan Failure):** If the plan is impossible -> Dispatch `architect` to update the Plan File.
         *   **Path C (Success):** If Verified -> Proceed to Git Protocol.
 3.  **GIT PROTOCOL (The Supervisor):**
     *   **Status Check:** Run `git status` and `git diff --stat`.
-    *   **Draft Message:** Construct a conventional commit message.
-    *   **STOP & ASK:** "Task X is verified. Proposed commit: '...'. OK to commit?"
+    *   **Draft Message:** Construct a conventional commit message summarizing the completed Group.
+    *   **STOP & ASK:** "Group X is verified. Proposed commit: '...'. OK to commit?"
     *   **Commit:** Only runs `git commit` after explicit user "Yes/Approve".
-4.  **REPEAT:** Move to the next Task in the plan.
+4.  **REPEAT:** Move to the next Execution Group in the plan.
 
 ### PHASE 5: RELEASE & TAG PROTOCOL (The Supervisor)
 *   **Trigger:** All Campaigns under an *Active Target Release* in `plans/00-ROADMAP.md` are marked "Completed".

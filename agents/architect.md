@@ -57,10 +57,15 @@ Create a comprehensive implementation plan file (`plans/active_campaigns/{monike
 *   **Key Dependencies:** [Libraries/Services involved]
 *   **Risks/Edge Cases:** [Anticipated challenges based on spec.md]
 
-## 📋 Micro-Step Checklist
-- [ ] Phase 1: [Name]
-  - [ ] Step 1.A: [Brief Name]
-  - [ ] Step 1.B: [Brief Name]
+## 📋 Task Execution (Parallel Groups)
+*CRITICAL: Group tasks by dependencies. Tasks within the same group MUST be entirely independent (they must not modify the same files) to allow for safe parallel execution. Group 2 cannot start until Group 1 is complete.*
+
+### Group 1 (Parallel Execution - Independent Tasks)
+- [ ] Task 1.A: [Name - explicitly state target file(s)]
+- [ ] Task 1.B: [Name - explicitly state target file(s)]
+
+### Group 2 (Sequential Execution - Depends on Group 1)
+- [ ] Task 2.A: [Name - explicitly state target file(s)]
 
 ## 📝 Step-by-Step Implementation Details
 *CRITICAL: Be extremely specific. You MUST include exact file paths, target line numbers (if known), function signatures, and structural code snippets.*
@@ -68,18 +73,17 @@ Create a comprehensive implementation plan file (`plans/active_campaigns/{monike
 ### Prerequisites
 [Setup or dependencies]
 
-#### Phase [X]: [Phase Name]
-1.  **Step [X].A (The Unit Test Harness):** Define the verification requirement.
+#### Task [X].[Y] (e.g., Task 1.A)
+1.  **Step 1 (The Unit Test Harness):** Define the verification requirement.
     *   *Target File:* `test/Path/To/Test.ext`
-    *   *Test Cases to Write:* [List specific assertions, e.g., "Assert `getUser(null)` throws `ValidationError`"]
-2.  **Step [X].B (The Implementation):** Execute the core change.
+    *   *Test Cases to Write:* [List specific assertions]
+2.  **Step 2 (The Implementation):** Execute the core change.
     *   *Target File:* `src/Path/To/File.ext`
-    *   *Exact Change:* [Provide function signatures, typing, and specific logic to implement]
-3.  **Step [X].C (The Verification):** Verify the harness.
+    *   *Exact Change:* [Specific logic to implement]
+3.  **Step 3 (The Verification):** Verify the harness.
     *   *Action:* Run `[specific unit test command]`.
-    *   *Success:* Test passes and no regressions.
 
-[...Continue for all micro-steps...]
+[...Continue for all tasks in all groups...]
 
 ### 🧪 Global Testing Strategy
 *   **Unit Tests:** [Summary of pure logic to test in isolation]
