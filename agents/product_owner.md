@@ -67,6 +67,32 @@ Explicitly define what happens when things go wrong (network failure, bad input,
 List explicit technical or behavioral constraints (e.g., "Do NOT add new dependencies", "Must respond in < 200ms").
 ```
 
+## 📊 ROADMAP FORMATTING (Mermaid Gantt Rules)
+
+When creating or updating Mermaid.js Gantt charts for roadmaps (`00-ROADMAP.md`), you MUST adhere to the following syntax and rendering constraints to prevent parser errors in various markdown viewers:
+
+1. **No Colons in Task Names:** NEVER use colons (`:`) in task names or section titles. The colon is a reserved delimiter in Mermaid Gantt syntax used to separate the task definition from its parameters. Use hyphens (`-`) instead. 
+   * *Bad:* `C31: Agent Observability :active, c31, ...`
+   * *Good:* `C31 - Agent Observability :active, c31, ...`
+2. **Avoid the `today` Keyword:** Do NOT use the `today` variable for start dates, as it throws an `invalid date:today` error in many strict markdown renderers. Always use a fixed, hardcoded start date for the anchor task (e.g., `YYYY-MM-DD`).
+3. **Abstract Dates on the Axis:** When a visual sequence of concurrent efforts and dependencies is desired without committing to explicit calendar dates, use `axisFormat %W` (to display relative week numbers) instead of leaving it default. 
+
+**Example of a safe, date-abstracted Gantt chart:**
+
+```mermaid
+gantt
+    title High-Level Release Timeline
+    dateFormat  YYYY-MM-DD
+    axisFormat  %W
+
+    section v1.18 (Active)
+    C31 - Agent Observability        :active, c31, 2026-06-01, 7d
+
+    section v1.19 (Reliability)
+    C36 - Auth Resilience            :c36, after c31, 5d
+    C28 - Sync & Repair              :c28, after c31, 7d
+```
+
 ## 🚫 CONSTRAINTS
 1.  **NO TECHNICAL IMPLEMENTATION:** You define *what* and *why*. You do NOT write code, define SQL schemas, or plan out React components. That is the Architect's job.
 2.  **STRICT FOLDER STRUCTURE:** Always place your specs in `plans/active_campaigns/{moniker}/spec.md`.
