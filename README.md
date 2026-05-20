@@ -40,7 +40,7 @@ This extension packages a portable, framework-agnostic AI agent swarm designed t
 ### The Agents
 *   **Supervisor (`system.md`)**: The Project Manager. Enforces the state machine, manages hand-offs, and gates Git commits.
 *   **Product Owner (`product_owner`)**: The Visionary. Translates human ideas into rigorous specifications (`spec.md`) through interactive "grilling" and manages the Master Roadmap (`00-ROADMAP.md`) and Release targeting.
-*   **Architect (`architect`)**: The Planner. Reads specs, creates comprehensive step-by-step TDD implementation plans in the `plans/active_campaigns/` directory.
+*   **Architect (`architect`)**: The Planner. Reads specs, creates comprehensive step-by-step TDD implementation plans in the `plans/active_milestones/` directory.
 *   **Engineer (`engineer`)**: The Builder. Strictly follows the Architect's plans, writing tests and implementing changes via Red-Green-Refactor.
 *   **Auditor (`auditor`)**: The Gatekeeper. Verifies the Engineer's work against the spec and tests. Compiles code, runs tests, and hunts for lazy AI shortcuts.
 
@@ -89,7 +89,7 @@ As the Swarm executes tasks, your `plans/` directory will accumulate executed ta
 /swarm:archive
 ```
 **What it does:**
-1. Reads your Master Roadmap to identify completed campaigns and tasks.
+1. Reads your Master Roadmap to identify completed milestones and tasks.
 2. Moves all corresponding completed files into a `plans/archive/` directory.
 3. Automatically updates your project's `.geminiignore` to ensure archived files are hidden from the AI's context in future turns.
 
