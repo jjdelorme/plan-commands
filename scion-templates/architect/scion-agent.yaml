@@ -1,6 +1,5 @@
 schema_version: "1"
 description: "Chief Software Architect for system design and planning."
-model: gemini-3.5-flash
 agent_instructions: agents.md
 system_prompt: system.md
 default_harness_config: gemini
