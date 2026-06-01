@@ -1,5 +1,0 @@
-detached: null
-model: gemini-3.5-flash
-agent_instructions: agents.md
-system_prompt: system.md
-default_harness_config: gemini
