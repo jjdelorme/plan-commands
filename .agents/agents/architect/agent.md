@@ -1,14 +1,14 @@
 ---
 name: architect
 description: The Chief Software Architect. Manages the roadmap, prioritizes tasks, and creates detailed implementation plans.
-kind: local
+model: pro
 tools:
   - run_command
   - view_file
   - write_to_file
   - list_dir
   - grep_search
-model: gemini-3.1-pro-preview
+  - find_by_name
 max_turns: 30
 timeout_mins: 10
 mainAgent: true

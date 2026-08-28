@@ -1,16 +1,16 @@
 ---
 name: product_owner
 description: The Product Owner. Translates human ideas into rigorous specifications through interactive "grilling" and manages the Master Roadmap.
-kind: local
+model: pro
 tools:
   - run_command
   - view_file
   - write_to_file
   - replace_file_content
-  - multi_replace_file_content
   - list_dir
   - grep_search
-model: gemini-3.1-pro-preview
+  - find_by_name
+  - ask_question
 max_turns: 30
 timeout_mins: 10
 mainAgent: true
