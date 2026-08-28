@@ -17,7 +17,9 @@ Identify the current state of the project and execute the corresponding phase.
 ```mermaid
 graph TD
     subgraph "Phase 0 & 1: Product & Strategy"
-        PO["Product Owner: Spec & Roadmap"]
+        PO["Product Owner: Spec & Questions"]
+        Questions{"Questions Pending?"}
+        UserClarify["User: Answers Clarifications"]
         Architect["Architect: Plan & Contract"]
     end
 
@@ -28,8 +30,10 @@ graph TD
 
     %% Flow
     Start(["User Request"]) --> PO
-    PO -- "Grills User / Refines Spec" --> PO
-    PO --> Architect
+    PO --> Questions
+    Questions -- "Yes (questions.md)" --> UserClarify
+    UserClarify --> PO
+    Questions -- "No (spec.md ready)" --> Architect
     Architect --> Review{"User Approval"}
 
     Review -- "Reject" --> Architect
@@ -59,16 +63,19 @@ graph TD
 
 ---
 
-### Phase 1: Product Discovery (Product Owner)
+### Phase 1: Product Discovery (Product Owner & Supervisor Relay)
 *   **Trigger:** Context Report is ready in `plans/research/`.
 *   **Action:** Invoke the `product_owner` subagent via `invoke_subagent`.
-*   **Instructions:**
-    1. Read `plans/research/<context_report>.md`.
-    2. Read or initialize `plans/00-ROADMAP.md`.
-    3. If requirements are ambiguous, engage the user in the Socratic "Grill Loop" (max 3 questions per turn).
-    4. Move the context file to `plans/active_milestones/{moniker}/context.md`.
-    5. Generate the specification file `plans/active_milestones/{moniker}/spec.md` with Gherkin acceptance criteria.
-    6. Update `plans/00-ROADMAP.md` with the new milestone.
+*   **Instructions to PO:**
+    1. Read `plans/research/<context_report>.md` and `plans/00-ROADMAP.md`.
+    2. If details are missing or edge cases exist, write discovery questions to `plans/active_milestones/{moniker}/questions.md` with recommended answers and return.
+    3. Once answers are provided, move context to `plans/active_milestones/{moniker}/context.md`, update `plans/00-ROADMAP.md`, and generate `plans/active_milestones/{moniker}/spec.md`.
+*   **Supervisor Relay (Interactive Gate):**
+    *   If `product_owner` outputs that questions are written to `questions.md`:
+        1. Read `plans/active_milestones/{moniker}/questions.md`.
+        2. Present the questions to the user in the main interactive chat (or using `ask_question`).
+        3. Save the user's responses into `plans/active_milestones/{moniker}/answers.md`.
+        4. Re-invoke `product_owner` with: `"Answers provided in plans/active_milestones/{moniker}/answers.md. Finalize spec.md and roadmap."`
 
 ---
 
@@ -131,3 +138,4 @@ graph TD
 2.  **FILE-BASED CONTRACTS:** Do not pass unpersisted specifications or large code blobs in chat prompts. Always pass file paths (`plans/active_milestones/...`).
 3.  **STRICT HUMAN GATING:** Never start execution without user approval on the plan. Never commit code without user approval and auditor verification.
 4.  **NO BROKEN CODE:** Never commit failing builds or skipped test suites.
+5.  **ASYNCHRONOUS SUBAGENT DISCOVERY:** Subagents must not block in interactive prompt loops. Questions are written to `questions.md` and relayed by the Supervisor to the user.
