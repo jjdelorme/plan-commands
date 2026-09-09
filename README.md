@@ -1,6 +1,6 @@
 # Gemini Swarm & Modernization Toolkit
 
-A comprehensive Gemini CLI Extension that provides a **Multi-Agent Swarm** for autonomous software development.
+A Gemini CLI Extension that provides a **Multi-Agent Swarm** for autonomous software development.
 
 **See** [Gemini CLI Extensions](https://github.com/google-gemini/gemini-cli/blob/main/docs/extensions/index.md) for more details.
 
@@ -16,97 +16,108 @@ From your command line:
 gemini extensions install https://github.com/jjdelorme/plan-commands
 ```
 
-### Activating the Swarm Supervisor (Per-Workspace)
+That is the whole setup. The extension ships one skill (`swarm`) and four subagents (`product_owner`, `architect`, `engineer`, `auditor`). The Gemini CLI discovers them on its own; no per-project files, environment variables, or restarts are required.
 
-While the agents (`architect`, `engineer`, `auditor`) are installed globally by the extension, the **Supervisor** (`system.md`) must be activated locally in each project you want to use it in.
+### Using the Swarm
+In any project, ask Gemini to use the swarm for a piece of work, for example:
 
-1. Navigate to your project directory.
-2. Run the initialization command:
-   ```bash
-   /swarm:init
-   ```
-   *(This downloads the `system.md` file into your local `.gemini/` folder).*
-3. **Restart** the Gemini CLI with the system override enabled:
-   ```bash
-   GEMINI_SYSTEM_MD=true gemini
-   ```
+> Use the swarm skill to add OAuth login to this service.
+
+Gemini takes on the **Supervisor** role defined by the skill and drives the lifecycle below, stopping for your input only at the discovery questions, the plan approval gate, each commit, and each release tag.
 
 ---
 
 ## 🤖 The Autonomous Swarm
 
-This extension packages a portable, framework-agnostic AI agent swarm designed to manage the software development lifecycle using a rigorous **Plan -> Act -> Verify** state machine.
+The swarm manages the software development lifecycle with a **Plan -> Audit -> Act -> Verify** state machine. Every hand-off between roles is a file under `plans/`, so the process is inspectable and resumable.
 
-### The Agents
-*   **Supervisor (`system.md`)**: The Project Manager. Enforces the state machine, manages hand-offs, and gates Git commits.
-*   **Product Owner (`product_owner`)**: The Visionary. Translates human ideas into rigorous specifications (`spec.md`) through interactive "grilling" and manages the Master Roadmap (`00-ROADMAP.md`) and Release targeting.
-*   **Architect (`architect`)**: The Planner. Reads specs, creates comprehensive step-by-step TDD implementation plans in the `plans/active_milestones/` directory.
-*   **Engineer (`engineer`)**: The Builder. Strictly follows the Architect's plans, writing tests and implementing changes via Red-Green-Refactor.
-*   **Auditor (`auditor`)**: The Gatekeeper. Verifies the Engineer's work against the spec and tests. Compiles code, runs tests, and hunts for lazy AI shortcuts.
+### The Roles
+*   **Supervisor (`swarm` skill)**: The Project Manager. Enforces the state machine, relays questions and blockers to you, and is the only participant that runs `git commit`.
+*   **Product Owner (`product_owner`)**: The Visionary. Turns your request and the research context into a traceable `spec.md` with stable requirement IDs, preserving domain rules verbatim, and maintains the Master Roadmap (`plans/00-ROADMAP.md`).
+*   **Architect (`architect`)**: The Planner. Discovers repository governance rules, then writes a concrete `plan.md` whose Requirements Traceability Matrix maps every spec ID to a task and a named test.
+*   **Engineer (`engineer`)**: The Builder. Implements one task at a time via Red-Green-Refactor and records blockers in the plan instead of guessing.
+*   **Auditor (`auditor`)**: The Gatekeeper, in two modes. `audit_design` checks the spec against the research and the plan against the spec and governance before you are asked to approve anything. `audit_code` walks the traceability matrix, builds, runs the tests, and hunts for shortcuts before anything is committed.
 
 ### 🔄 Protocol Lifecycle
-The system moves through distinct phases, enforced by the Supervisor.
 
 ```mermaid
 graph TD
-    %% Roles
-    subgraph "Phase 0 & 1: Product & Strategy"
-        PO["Product Owner: Spec & Roadmap"]
-        Architect["Architect: Plan & Contract"]
+    subgraph "Discovery & Design"
+        PO["Product Owner: spec.md"]
+        Questions{"Questions?"}
+        Architect["Architect: plan.md + RTM"]
+        DesignAudit["Auditor: Design Audit"]
     end
 
-    subgraph "Phase 2 & 3: Construction"
+    subgraph "Construction & Verification"
         Engineer["Engineer: Implement"]
-        Auditor["Auditor: Verify"]
+        CodeAudit["Auditor: Code Audit"]
     end
 
-    %% Flow
     Start(["User Request"]) --> PO
-    PO -- Grills User --> PO
-    PO --> Architect
-    Architect --> Review{"User Approval"}
+    PO --> Questions
+    Questions -- "Yes" --> User["You answer"] --> PO
+    Questions -- "No" --> Architect
+    Architect --> DesignAudit
 
-    Review -- Reject --> Architect
-    Review -- Approve --> Engineer
+    DesignAudit -- "Spec defect" --> PO
+    DesignAudit -- "Plan defect" --> Architect
+    DesignAudit -- "Pass" --> Review{"Your Approval"}
 
-    Engineer --> Auditor
+    Review -- "Reject" --> Architect
+    Review -- "Approve" --> Engineer
 
-    %% The Three-Way Fork
-    Auditor -- Code Broken? --> Engineer
-    Auditor -- Plan Wrong? --> Architect
-    Auditor -- Verified --> Commit(["Git Commit"])
-    
+    Engineer --> CodeAudit
+    CodeAudit -- "Code broken" --> Engineer
+    CodeAudit -- "Plan wrong" --> Architect
+    CodeAudit -- "Verified" --> Commit(["Git Commit (you approve)"])
+
     Commit --> CheckRelease{"Release Complete?"}
-    CheckRelease -- No --> Engineer
-    CheckRelease -- Yes --> Tag(["Git Tag & Release"])
+    CheckRelease -- "No" --> Engineer
+    CheckRelease -- "Yes" --> Tag(["Git Tag & Release"])
     Tag --> PO
 ```
 
+Automated return loops are capped. If the design audit rejects twice, the Supervisor stops and shows you the impasse rather than looping.
+
+### Workspace Layout
+```
+plans/
+  00-ROADMAP.md                      # Master roadmap (Product Owner)
+  research/                          # Context reports before a milestone exists
+  active_milestones/{moniker}/
+    context.md                       # Research the spec must stay faithful to
+    questions.md / answers.md        # Discovery questions and your decisions
+    spec.md                          # Contract with INV-/AC-/EC-/C- IDs
+    plan.md                          # Tasks, RTM, governance mandates, blockers
+  audit/                             # Auditor reports (git-ignored)
+```
+
 ### Workspace Maintenance: Archiving Plans
-As the Swarm executes tasks, your `plans/` directory will accumulate executed task files, research reports, and review feedback. To keep the agent's context window clean and focused, you can archive completed items:
+As the swarm executes, `plans/` accumulates completed milestones and reports. To keep the agent's context clean:
 
 ```bash
 /swarm:archive
 ```
 **What it does:**
-1. Reads your Master Roadmap to identify completed milestones and tasks.
-2. Moves all corresponding completed files into a `plans/archive/` directory.
-3. Automatically updates your project's `.geminiignore` to ensure archived files are hidden from the AI's context in future turns.
+1. Reads the Master Roadmap to identify completed milestones.
+2. Moves the corresponding folders from `plans/active_milestones/` into `plans/archive/`.
+3. Updates your project's `.geminiignore` so archived files are hidden from the AI's context.
 
 ### Extending the Swarm (Optional)
-The core swarm is agnostic. To add deep codebase intelligence (like a Graph Database), install a specialized skill/agent in your project and update your project's `GEMINI.md` to instruct the swarm to use it:
+The core swarm is project-agnostic and reads your repository's own governance documents (agent instruction files, contributor guides, architecture indexes) to learn project-specific rules. Put project conventions there rather than editing the agents. You can also route work to specialized agents by adding rules to your project's `GEMINI.md`:
 
 ```markdown
-# Swarm Routing & Delegation Rules (Add to your project's GEMINI.md)
-- For codebase investigation, you MUST delegate to the `scout` agent. Do NOT use the built-in investigator.
-- The `auditor` agent MUST utilize the `graphdb` skill for verifying changes.
+# Swarm Routing & Delegation Rules
+- For codebase investigation, delegate to the `scout` agent instead of investigating directly.
+- The `auditor` agent MUST use the `graphdb` skill when verifying changes.
 ```
 
 ---
 
-## 📝 2. Agile Refinement Commands
+## 📝 Agile Refinement Commands
 
-This toolkit also includes standalone utilities for refining your project requirements and mapping out new tasks, which are entirely separate from the automated agent swarm. 
+Standalone utilities for refining requirements, separate from the swarm.
 
 ### User Story Generation
 *Generates agile user stories from an existing code base to help understand the current system or prepare for refactoring.*
