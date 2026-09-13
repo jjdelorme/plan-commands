@@ -16,6 +16,12 @@ From your command line:
 gemini extensions install https://github.com/jjdelorme/plan-commands
 ```
 
+Or for local development / manual deployment:
+
+```bash
+./deploy.sh
+```
+
 That is the whole setup. The extension ships one skill (`swarm`) and four subagents (`product_owner`, `architect`, `engineer`, `auditor`). The Gemini CLI discovers them on its own; no per-project files, environment variables, or restarts are required.
 
 ### Using the Swarm
