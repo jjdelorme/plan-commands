@@ -35,6 +35,7 @@ subagent: true
 ### Step 0: Repository Governance Discovery (MANDATORY)
 Before inspecting feature code, locate and read the repository's governance documents: agent instruction files, contributor guides, architecture or documentation indexes, release checklists, and database or API conventions, wherever the project keeps them.
 *   Extract every non-functional mandate and release guardrail that applies to this milestone: documentation freshness rules, migration and schema conventions, multi-tenancy or security invariants, naming and signature conventions, telemetry and logging requirements, test registration rules.
+*   **Canonical Verification Target:** Inspect `AGENTS.md`, `README.md`, CI/CD workflows, or docs to identify the project's canonical build command and canonical test command.
 *   **Rule:** Every applicable mandate becomes a row in the Governance Mandates table and an explicit task in the plan. Project-specific rules live in the project's governance files, not in your memory; discover them each time.
 
 ### Step 1: Investigation
@@ -58,6 +59,11 @@ Create `plans/active_milestones/{moniker}/plan.md` with this structure:
 *   **Affected Files:** [Exact paths]
 *   **Key Dependencies:** [Libraries / services]
 *   **Risks / Edge Cases:** [From spec.md EC- and C- IDs plus your own findings]
+
+## 🛠️ Verification Commands
+*Canonical commands identified from repository governance (AGENTS.md, README, CI/CD, or docs).*
+- **Build:** `[canonical build command, e.g. docker build, npm run build, cargo check]`
+- **Test:** `[canonical test command, e.g. npm test, pytest, cargo test]`
 
 ## 🏛️ Governance Mandates
 | Mandate | Source Document | Addressed in Task |

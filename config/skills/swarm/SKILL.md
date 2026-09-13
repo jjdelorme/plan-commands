@@ -72,7 +72,7 @@ All hand-offs are files. Each milestone lives in `plans/active_milestones/{monik
 | `context.md` | Supervisor (research), moved by Product Owner | Codebase and domain research the spec must remain faithful to |
 | `questions.md` / `answers.md` | Product Owner / Supervisor relay | Discovery questions and the user's decisions (the **decisions log**) |
 | `spec.md` | Product Owner | Testable contract with stable IDs (`INV-`, `AC-`, `EC-`, `C-`) |
-| `plan.md` | Architect | Tasks, Requirements Traceability Matrix (RTM), governance mandates, blockers |
+| `plan.md` | Architect | Tasks, Requirements Traceability Matrix (RTM), Verification Commands, governance mandates, blockers |
 | `data-model.md`, `api-contracts.md` | Architect | Optional concrete schemas and interfaces |
 | `plans/audit/DESIGN_AUDIT_{moniker}.md` | Auditor | Design audit verdict and findings |
 | `plans/audit/AUDIT_{moniker}_group{N}.md` | Auditor | Code audit verdict per execution group |
@@ -106,8 +106,9 @@ All hand-offs are files. Each milestone lives in `plans/active_milestones/{monik
 ### Phase 2: Tactical Planning (Architect)
 *   **Trigger:** `spec.md` exists and no questions are pending.
 *   **Action:** Dispatch the `architect` subagent.
+*   **Architect's Role (Project Build & Verification Target):** The Architect must inspect the repo's governance (`AGENTS.md`, `README`, or docs) and identify the project's canonical build command and canonical test command, explicitly listing them in `plan.md` under a standard section (`## Verification Commands`).
 *   **Prompt:**
-    > "Read `plans/active_milestones/{moniker}/spec.md`, `context.md`, and `answers.md` (if present). Perform governance discovery, then create `plan.md` (and `data-model.md` / `api-contracts.md` if needed) in the same directory. The plan must contain a complete Requirements Traceability Matrix covering every spec ID."
+    > "Read `plans/active_milestones/{moniker}/spec.md`, `context.md`, and `answers.md` (if present). Perform governance discovery (inspecting AGENTS.md, README, CI/CD, or docs) to identify the project's canonical build command and canonical test command. Create `plan.md` (and `data-model.md` / `api-contracts.md` if needed) in the same directory. The plan must explicitly list the canonical build and test commands under a standard '## Verification Commands' section, and contain a complete Requirements Traceability Matrix covering every spec ID."
 
 ---
 
@@ -115,7 +116,7 @@ All hand-offs are files. Each milestone lives in `plans/active_milestones/{monik
 *   **Trigger:** `plan.md` has been created or revised and has not yet passed a design audit.
 *   **Action:** Dispatch the `auditor` subagent in **`audit_design`** mode.
 *   **Prompt:**
-    > "Mode: audit_design. Audit milestone `{moniker}`. Read `spec.md`, `plan.md`, `context.md`, `questions.md` and `answers.md` in `plans/active_milestones/{moniker}/`, plus the repository governance documents. Verify spec fidelity to context, RTM completeness and correctness, governance compliance, concreteness, and test precision. Do not re-open decisions recorded in `answers.md`. Write your report to `plans/audit/DESIGN_AUDIT_{moniker}.md` with each finding tagged SPEC or PLAN."
+    > "Mode: audit_design. Audit milestone `{moniker}`. Read `spec.md`, `plan.md`, `context.md`, `questions.md` and `answers.md` in `plans/active_milestones/{moniker}/`, plus the repository governance documents. Verify spec fidelity to context, RTM completeness and correctness, governance compliance, presence and validity of canonical commands in '## Verification Commands', concreteness, and test precision. Do not re-open decisions recorded in `answers.md`. Write your report to `plans/audit/DESIGN_AUDIT_{moniker}.md` with each finding tagged SPEC or PLAN."
 *   **Reviewer Context Calibration:** Give the auditor the artifacts and the decisions log. Do **not** give it the Architect's or Product Owner's conversational narrative or the chat transcript.
 *   **Decision Fork:**
     *   **SPEC defects:** Re-dispatch the `product_owner` with the report path to revise `spec.md`. The `architect` must then reconcile `plan.md` and the RTM.
@@ -147,7 +148,8 @@ All hand-offs are files. Each milestone lives in `plans/active_milestones/{monik
     *   **Blocker Relay:** If any engineer recorded a blocker: route plan defects to the `architect`; route decisions that require the user to the user, persist the answer to `answers.md`, and re-dispatch the `engineer`.
 2.  **Stateless Verification (Auditor):**
     *   Dispatch the `auditor` subagent in **`audit_code`** mode.
-    *   Prompt: `"Mode: audit_code. Verify the tasks of Group {N} in plans/active_milestones/{moniker}/plan.md. Walk every RTM row mapped to these tasks: locate the code, run the build and the named tests, and scan for shortcuts. Write your report to plans/audit/AUDIT_{moniker}_group{N}.md."`
+    *   **Auditor's Role (Canonical Build & Verification):** The Auditor is instructed: *"Execute the exact build and verification commands specified in the plan's Verification Commands section before evaluating test assertions."*
+    *   **Prompt:** `"Mode: audit_code. Verify the tasks of Group {N} in plans/active_milestones/{moniker}/plan.md. Execute the exact build and verification commands specified in the plan's Verification Commands section before evaluating test assertions. Walk every RTM row mapped to these tasks: locate the code, run the build and the named tests, and scan for shortcuts. Write your report to plans/audit/AUDIT_{moniker}_group{N}.md."`
     *   **Decision Fork:**
         *   **Path A (Code / Test Failure):** Dispatch the `engineer` with the report path to resolve the findings.
         *   **Path B (Plan Flaw / Infeasible Step):** Dispatch the `architect` to revise `plan.md`; run a scoped `audit_design` on the revised sections, then re-implement.

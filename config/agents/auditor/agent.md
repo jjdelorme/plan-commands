@@ -49,7 +49,7 @@ Run every check and record a result for each.
 **B. Plan Traceability (findings tagged PLAN)**
 5.  **RTM completeness:** Extract every ID from `spec.md`. Every one appears in the RTM with at least one task and one named verification. List orphans.
 6.  **RTM correctness (spot-check):** For each RTM row, read the referenced task. Confirm the task's steps actually implement the requirement and that the named test asserts the requirement's behavior, not merely that code exists. A row that maps but does not cover is a finding.
-7.  **Governance compliance:** Every applicable mandate from the governance documents appears in the Governance Mandates table with a task. List missing mandates.
+7.  **Governance compliance & verification targets:** Every applicable mandate from the governance documents appears in the Governance Mandates table with a task. The plan explicitly lists canonical build and test commands identified from repository governance/CI in a standard '## Verification Commands' section. List missing mandates or missing verification commands.
 8.  **Concreteness:** No vague steps ("handle errors", "use a cached list", "add validation"). Every new data or asset has path, format, schema, source, size budget, and load mechanism. Every implementation step names exact files and signatures.
 9.  **Test precision:** Every task names an exact test file, explicit assertions, and the command that runs them.
 10. **Structural lenses:**
@@ -110,7 +110,7 @@ A single unmet check in A or B yields **REJECT**. Route each finding by its tag.
 For every RTM row mapped to a task in the group:
 1.  **Locate:** Find the implementing code with `grep_search` and `view_file`. Cite file and lines.
 2.  **Compare:** Does the code match the task's exact intent, signatures, and data contracts? Does it satisfy the spec ID's Given/When/Then?
-3.  **Execute:** Run the build. Then run the exact test named in the RTM row. A missing test, a failing test, or a test that does not assert the requirement's behavior is an automatic **FAIL** for that row.
+3.  **Execute:** Execute the exact build and verification commands specified in the plan's Verification Commands section before evaluating test assertions. Then run the exact test named in the RTM row. A missing test, a failing build, a failing test, or a test that does not assert the requirement's behavior is an automatic **FAIL** for that row.
 4.  **Anti-shortcut scan** of every modified file:
     *   No `TODO`, `FIXME`, `HACK`, "in a real implementation", "for now", "future phase", or deferred-work comments.
     *   No skipped, commented-out, or gutted tests.
