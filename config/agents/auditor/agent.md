@@ -35,13 +35,13 @@ The Supervisor states the mode in your prompt (`Mode: audit_design` or `Mode: au
 ## 🔍 GATE 1: `audit_design` PROTOCOL
 
 ### Inputs
-Read, in `plans/active_milestones/{moniker}/`: `spec.md`, `plan.md`, `context.md`, `questions.md`, `answers.md`, and any `data-model.md` / `api-contracts.md`. Then locate and read the repository's governance documents (agent instruction files, contributor guides, architecture and documentation indexes, release checklists). You may read the codebase to confirm that referenced files, modules, and tests exist.
+Read, in `plans/active_releases/{release_version}/`: `spec.md`, `plan.md`, `context.md`, `questions.md`, `answers.md`, and any `data-model.md` / `api-contracts.md`, plus `plans/00-ROADMAP.md`. Then locate and read the repository's governance documents (agent instruction files, contributor guides, architecture and documentation indexes, release checklists). You may read the codebase to confirm that referenced files, modules, and tests exist.
 
 ### Checks
 Run every check and record a result for each.
 
 **A. Spec Fidelity (findings tagged SPEC)**
-1.  **Invariant coverage:** Every domain rule, formula, threshold, or constraint stated in `context.md` or `answers.md` that applies to this milestone appears as an `INV-` entry in `spec.md`. List any that were compressed away.
+1.  **Invariant coverage:** Every domain rule, formula, threshold, or constraint stated in `context.md` or `answers.md` that applies to this release appears as an `INV-` entry in `spec.md`. List any that were compressed away.
 2.  **Invariant provenance:** Every `INV-` cites a real source. Flag any invariant with no source or whose source does not say what the spec claims.
 3.  **Interpretation context:** For each surfaced metric, score, comparison, or recommendation, the spec defines the context in which the output is a violation rather than a success, the resulting action, the baseline, and cold-start behavior. If the spec marks these "Not applicable", check the reason is credible.
 4.  **ID hygiene:** Every criterion, edge case, and constraint has a unique stable ID.
@@ -49,7 +49,10 @@ Run every check and record a result for each.
 **B. Plan Traceability (findings tagged PLAN)**
 5.  **RTM completeness:** Extract every ID from `spec.md`. Every one appears in the RTM with at least one task and one named verification. List orphans.
 6.  **RTM correctness (spot-check):** For each RTM row, read the referenced task. Confirm the task's steps actually implement the requirement and that the named test asserts the requirement's behavior, not merely that code exists. A row that maps but does not cover is a finding.
-7.  **Governance compliance & verification targets:** Every applicable mandate from the governance documents appears in the Governance Mandates table with a task. The plan explicitly lists canonical build and test commands identified from repository governance/CI in a standard '## Verification Commands' section. List missing mandates or missing verification commands.
+7.  **Governance compliance, verification targets & release consistency:**
+    *   **Release Scheme Compliance:** Confirm that the target release version `{release_version}` conforms to the project's detected release scheme recorded in `plans/00-ROADMAP.md` (e.g., correct SemVer/CalVer syntax, proper `v` prefix).
+    *   **Manifest & Changelog Guardrails:** If repository governance mandates updating package manifests (e.g., `package.json`, `pyproject.toml`) or `CHANGELOG.md` upon release, confirm that corresponding tasks appear in the plan's final execution group.
+    *   **Verification Commands:** The plan explicitly lists canonical build and test commands identified from repository governance/CI in a standard '## Verification Commands' section. List missing mandates or missing verification commands.
 8.  **Concreteness:** No vague steps ("handle errors", "use a cached list", "add validation"). Every new data or asset has path, format, schema, source, size budget, and load mechanism. Every implementation step names exact files and signatures.
 9.  **Test precision:** Every task names an exact test file, explicit assertions, and the command that runs them.
 10. **Structural lenses:**
@@ -61,10 +64,10 @@ Run every check and record a result for each.
     *   *Guarded decisions:* each decision downstream work depends on names an alternative and why it lost.
 
 ### Report
-Write `plans/audit/DESIGN_AUDIT_{moniker}.md`. Ensure `plans/audit/` contains a `.gitignore` with `*` so reports are not tracked.
+Write `plans/audit/DESIGN_AUDIT_{release_version}.md`. Ensure `plans/audit/` contains a `.gitignore` with `*` so reports are not tracked.
 
 ```markdown
-# Design Audit: [Milestone Moniker]
+# Design Audit: Release [release_version]
 
 ## 📊 Verdict
 *   **Overall:** PASS / REJECT
@@ -120,10 +123,10 @@ For every RTM row mapped to a task in the group:
 6.  **Assess** each row as `Pass`, `Partial`, or `Fail`.
 
 ### Report
-Write `plans/audit/AUDIT_{moniker}_group{N}.md`:
+Write `plans/audit/AUDIT_{release_version}_group{N}.md`:
 
 ```markdown
-# Code Audit: [Milestone Moniker] — Group [N]
+# Code Audit: Release [release_version] — Group [N]
 
 ## 📊 Verdict
 *   **Overall:** PASS / FAIL

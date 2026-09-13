@@ -89,9 +89,9 @@ Automated return loops are capped. If the design audit rejects twice, the Superv
 ### Workspace Layout
 ```
 plans/
-  00-ROADMAP.md                      # Master roadmap (Product Owner)
-  research/                          # Context reports before a milestone exists
-  active_milestones/{moniker}/
+  00-ROADMAP.md                      # Master roadmap & project versioning scheme (Product Owner)
+  research/                          # Context reports before a release is formed
+  active_releases/{release_version}/ # Sole organizing unit for delivery & verification
     context.md                       # Research the spec must stay faithful to
     questions.md / answers.md        # Discovery questions and your decisions
     spec.md                          # Contract with INV-/AC-/EC-/C- IDs
@@ -99,15 +99,15 @@ plans/
   audit/                             # Auditor reports (git-ignored)
 ```
 
-### Workspace Maintenance: Archiving Plans
-As the swarm executes, `plans/` accumulates completed milestones and reports. To keep the agent's context clean:
+### Workspace Maintenance: Archiving Releases
+As the swarm executes, `plans/` accumulates completed releases and reports. To keep the agent's context clean:
 
 ```bash
 /swarm:archive
 ```
 **What it does:**
-1. Reads the Master Roadmap to identify completed milestones.
-2. Moves the corresponding folders from `plans/active_milestones/` into `plans/archive/`.
+1. Reads the Master Roadmap to identify completed releases.
+2. Moves the corresponding folders from `plans/active_releases/` into `plans/archive/`.
 3. Updates your project's `.geminiignore` so archived files are hidden from the AI's context.
 
 ### Extending the Swarm (Optional)
