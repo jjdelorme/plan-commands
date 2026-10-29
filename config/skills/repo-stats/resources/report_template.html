@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{repo_name}} — Repo Scope &amp; Complexity</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #1e293b;
+      --panel-alt: #263349;
+      --border: #334155;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --blue: #38bdf8;
+      --indigo: #818cf8;
+      --emerald: #34d399;
+      --amber: #fbbf24;
+      --rose: #fb7185;
+      --purple: #c084fc;
+      --teal: #2dd4bf;
+      --slate: #64748b;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 2rem 1.5rem 4rem;
+    }
+    .container { max-width: 1200px; margin: 0 auto; }
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      padding-bottom: 1.25rem;
+      border-bottom: 1px solid var(--border);
+    }
+    header h1 { font-size: 1.75rem; font-weight: 700; letter-spacing: -0.02em; }
+    header p { color: var(--muted); font-size: 0.95rem; margin-top: 0.25rem; }
+    .badge-pill {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      padding: 0.4rem 0.85rem;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    .badge-pill strong { color: var(--text); }
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .kpi-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 0.75rem;
+      padding: 1.15rem 1.25rem;
+    }
+    .kpi-label {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      margin-bottom: 0.35rem;
+    }
+    .kpi-value {
+      font-size: 1.65rem;
+      font-weight: 700;
+      color: var(--text);
+      font-variant-numeric: tabular-nums;
+    }
+    .kpi-sub { font-size: 0.8rem; color: var(--muted); margin-top: 0.25rem; }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .card h2 { font-size: 1.15rem; font-weight: 600; margin-bottom: 0.35rem; }
+    .card-subtitle { font-size: 0.85rem; color: var(--muted); margin-bottom: 1.15rem; }
+    .stacked-bar {
+      display: flex;
+      height: 22px;
+      border-radius: 8px;
+      overflow: hidden;
+      background: var(--bg);
+      margin-bottom: 0.9rem;
+      gap: 2px;
+    }
+    .stacked-segment { height: 100%; }
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.65rem 1.4rem;
+      font-size: 0.83rem;
+      color: var(--muted);
+    }
+    .legend-item { display: flex; align-items: center; gap: 0.45rem; }
+    .dot { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+    .two-col {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .table-wrap { overflow-x: auto; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      font-variant-numeric: tabular-nums;
+    }
+    th, td {
+      padding: 0.6rem 0.75rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    th {
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      background: rgba(15, 23, 42, 0.4);
+    }
+    td.num, th.num { text-align: right; }
+    tr.total-row td {
+      font-weight: 700;
+      border-top: 2px solid var(--border);
+      background: rgba(15, 23, 42, 0.35);
+    }
+    .bar-cell { width: 120px; }
+    .mini-bar-bg {
+      width: 100%;
+      height: 8px;
+      background: var(--bg);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .mini-bar-fill { height: 100%; border-radius: 4px; }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.82rem;
+      background: rgba(15, 23, 42, 0.65);
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      color: #e2e8f0;
+    }
+    .cc-badge {
+      display: inline-block;
+      padding: 0.12rem 0.5rem;
+      border-radius: 4px;
+      font-weight: 600;
+      font-size: 0.78rem;
+      font-family: ui-monospace, monospace;
+      white-space: nowrap;
+    }
+    .cc-0 { background: rgba(45, 212, 191, 0.15); color: var(--teal); border: 1px solid rgba(45, 212, 191, 0.35); }
+    .cc-1 { background: rgba(52, 211, 153, 0.15); color: var(--emerald); border: 1px solid rgba(52, 211, 153, 0.35); }
+    .cc-2 { background: rgba(56, 189, 248, 0.15); color: var(--blue); border: 1px solid rgba(56, 189, 248, 0.35); }
+    .cc-3 { background: rgba(251, 191, 36, 0.16); color: var(--amber); border: 1px solid rgba(251, 191, 36, 0.35); }
+    .cc-4 { background: rgba(251, 146, 60, 0.18); color: #fb923c; border: 1px solid rgba(251, 146, 60, 0.4); }
+    .cc-5 { background: rgba(251, 113, 133, 0.18); color: var(--rose); border: 1px solid rgba(251, 113, 133, 0.4); }
+    .stat-pills { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
+    .stat-pill {
+      background: var(--panel-alt);
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      padding: 0.45rem 0.75rem;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+    .stat-pill strong { color: var(--text); font-size: 0.92rem; margin-right: 0.2rem; }
+    .tag-cat {
+      font-size: 0.75rem;
+      padding: 0.12rem 0.45rem;
+      border-radius: 4px;
+      background: var(--panel-alt);
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .subscore-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 0.85rem;
+      margin-bottom: 1.25rem;
+    }
+    .subscore-box {
+      background: var(--panel-alt);
+      border: 1px solid var(--border);
+      border-radius: 0.6rem;
+      padding: 0.85rem 1rem;
+    }
+    .subscore-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.86rem;
+      font-weight: 600;
+    }
+    .subscore-note { font-size: 0.78rem; color: var(--muted); }
+    .scale-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+      gap: 0.65rem;
+    }
+    .scale-item {
+      background: rgba(15, 23, 42, 0.45);
+      border: 1px solid var(--border);
+      border-radius: 0.55rem;
+      padding: 0.7rem 0.8rem;
+    }
+    .scale-item-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.4rem;
+      margin-bottom: 0.35rem;
+    }
+    .scale-item-desc { font-size: 0.76rem; color: var(--muted); line-height: 1.35; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>📊 {{repo_name}} — Scope &amp; Complexity</h1>
+        <p>Static analysis of <code>{{repo_path}}</code></p>
+      </div>
+      <div class="badge-pill">
+        <strong>{{git_commits}}</strong> Commits &nbsp;·&nbsp; <strong>{{git_tags}}</strong> Tags &nbsp;·&nbsp; <strong>{{tot_mb}} MB</strong> Tracked
+      </div>
+    </header>
+
+    <div class="kpi-grid">
+      <div class="kpi-card" style="border-color:{{tier_color}};">
+        <div class="kpi-label">Complexity Factor (0–5)</div>
+        <div class="kpi-value" style="color:{{tier_color}};">{{comp_overall}} <span style="font-size:1rem;font-weight:500;color:var(--muted);">/ 5.0</span></div>
+        <div class="kpi-sub">Tier {{tier_level}}: <strong>{{tier_label}}</strong></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Tracked Files</div>
+        <div class="kpi-value">{{tot_files}}</div>
+        <div class="kpi-sub">Across {{dir_count}} top-level dirs</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Total Lines</div>
+        <div class="kpi-value">{{tot_lines}}</div>
+        <div class="kpi-sub">{{tot_blank}} blank · {{tot_comment}} comments</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Code &amp; Content Lines</div>
+        <div class="kpi-value">{{tot_code}}</div>
+        <div class="kpi-sub">{{prod_code}} prod · {{test_code}} tests</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Test : Prod Ratio</div>
+        <div class="kpi-value" style="color: var(--emerald);">{{ratio_str}}</div>
+        <div class="kpi-sub">{{total_test_cases}} test funcs/cases</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Primary Code ({{top_lang_title}})</div>
+        <div class="kpi-value" style="color: var(--blue);">{{prod_files_count}} files</div>
+        <div class="kpi-sub">{{top_lang_sub}}</div>
+      </div>
+    </div>
+
+    <!-- 0..5 Complexity Breakdown & Legend Card -->
+    <div class="card">
+      <h2>Complexity Factor Breakdown ({{comp_overall}} / 5.0 — {{tier_label}}) &amp; 0..5 Scale Legend</h2>
+      <div class="card-subtitle">Composite repository complexity calculated from volume, control-flow density, hotspot severity, and architectural breadth</div>
+      <div class="subscore-grid">
+        {{subscore_cards}}
+      </div>
+      <div style="font-size:0.78rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--muted);margin-bottom:0.5rem;font-weight:600;">
+        0..5 Complexity Factor Scale Legend (Current Repo Tier Highlighted)
+      </div>
+      <div class="scale-grid">
+        {{scale_legend_rows}}
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Repository Composition (by Non-Blank Lines)</h2>
+      <div class="card-subtitle">Distribution of {{tot_code}} non-blank/non-comment lines across categories</div>
+      <div class="stacked-bar">{{stacked_segments}}</div>
+      <div class="legend">{{legend_items}}</div>
+    </div>
+
+    <div class="card">
+      <h2>1. Breakdown by Category</h2>
+      <div class="card-subtitle">Line counts split into code/content, comments, and blank lines</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Category</th><th class="num">Files</th><th class="num">Total LOC</th>
+              <th class="num">Code / Content</th><th>Share</th><th class="num">Comments</th>
+              <th class="num">Blank</th><th class="num">Size (KB)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{cat_rows}}
+            <tr class="total-row">
+              <td>TOTAL</td><td class="num">{{tot_files}}</td><td class="num">{{tot_lines}}</td>
+              <td class="num">{{tot_code}}</td><td></td><td class="num">{{tot_comment}}</td>
+              <td class="num">{{tot_blank}}</td><td class="num">{{tot_kb}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="card" style="margin-bottom:0;">
+        <h2>2. By File Extension</h2>
+        <div class="card-subtitle">Top file types by non-blank content</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Ext</th><th class="num">Files</th><th class="num">Total LOC</th><th class="num">Code / Content</th><th>Visual</th></tr></thead>
+            <tbody>{{ext_rows}}</tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:0;">
+        <h2>3. By Top-Level Directory</h2>
+        <div class="card-subtitle">Top directories by non-blank content</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Directory</th><th class="num">Files</th><th class="num">Total LOC</th><th class="num">Code / Content</th><th class="num">Size (KB)</th></tr></thead>
+            <tbody>{{dir_rows}}</tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="card" style="margin-bottom:0;">
+        <h2>4. Function AST Complexity Hotspots</h2>
+        <div class="card-subtitle">Cyclomatic complexity (CC) &amp; 0..5 factor across {{py_total_funcs}} Python functions</div>
+        <div class="stat-pills">
+          <div class="stat-pill"><strong>{{py_avg_len}}</strong> avg lines/func</div>
+          <div class="stat-pill"><strong>{{py_avg_cc}}</strong> avg CC</div>
+          <div class="stat-pill"><strong>{{py_high_cc}}</strong> funcs CC &gt; 10</div>
+          <div class="stat-pill"><strong>{{py_very_high}}</strong> funcs CC &gt; 20</div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Function</th><th class="num">0..5 Factor</th><th class="num">CC</th><th class="num">Lines</th></tr></thead>
+            <tbody>{{py_rows}}</tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:0;">
+        <h2>5. File-Level Branch Density Hotspots</h2>
+        <div class="card-subtitle">Most branch-heavy code files &amp; their 0..5 complexity factor</div>
+        <div class="stat-pills">
+          <div class="stat-pill"><strong>~{{other_funcs}}</strong> funcs/components</div>
+          <div class="stat-pill"><strong>{{other_hooks}}</strong> custom hooks</div>
+          <div class="stat-pill"><strong>{{other_types}}</strong> types/interfaces</div>
+          <div class="stat-pill"><strong>{{other_test_cases}}</strong> test cases</div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>File</th><th class="num">0..5 Factor</th><th class="num">Branches</th><th class="num">Code LOC</th></tr></thead>
+            <tbody>{{other_rows}}</tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>6. Top 12 Largest Code Files</h2>
+      <div class="card-subtitle">Ranked by non-blank, non-comment lines of code</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>File Path</th><th>Category</th><th class="num">Code Lines</th><th class="num">Total Lines</th><th>Relative Size</th></tr></thead>
+          <tbody>{{file_rows}}</tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
