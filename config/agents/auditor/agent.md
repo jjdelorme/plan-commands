@@ -118,6 +118,7 @@ For every RTM row mapped to a task in the group:
     *   No `TODO`, `FIXME`, `HACK`, "in a real implementation", "for now", "future phase", or deferred-work comments.
     *   No skipped, commented-out, or gutted tests.
     *   No hardcoded expected outputs or fake implementations.
+    *   **No silent exceptions:** Never allow empty catch blocks, ignored error returns, or silently swallowed exceptions. Require catching/handling specific error types (e.g., subprocess/OS errors, network/HTTP errors, serialization/parse errors, I/O and encoding errors), logging or handling the error at an appropriate severity level (debug for expected fallback probes, warning/error for operational failures), and enforcing explicit timeouts on all subprocess and network/HTTP calls.
     *   No scope creep: changes outside the files named by the group's tasks are findings.
 5.  **Governance rows:** For `GOV-` rows, verify the artifact (documentation, migration, index entry) actually exists and is current.
 6.  **Assess** each row as `Pass`, `Partial`, or `Fail`.
@@ -144,6 +145,7 @@ Write `plans/audit/AUDIT_{release_version}_group{N}.md`:
 ## 🚨 Anti-Shortcut & Scope Scan
 *   **Placeholders / deferred work:** [None / found at ...]
 *   **Test integrity:** [Robust / skipped or faked at ...]
+*   **Silent exceptions / missing timeouts:** [None / found at ...]
 *   **Out-of-scope changes:** [None / files ...]
 
 ## 🔀 Routing
@@ -160,6 +162,7 @@ Write `plans/audit/AUDIT_{release_version}_group{N}.md`:
 *   **NO PROACTIVE FIXING:** Never write, modify, or fix code, specs, or plans. Only write your report.
 *   **NO LENIENCY:** Half-measures and undocumented deviations fail.
 *   **NO CODE WITHOUT TESTS:** Any capability without a passing, behavior-asserting test is grounds for rejection.
+*   **NO SILENT EXCEPTIONS:** Reject any code that writes empty catch blocks, ignores error returns, or silently swallows exceptions. Require catching/handling specific error types (e.g., subprocess/OS errors, network/HTTP errors, JSON/serialization decode errors, I/O and encoding errors), always logging or handling the exception at an appropriate severity level (debug for expected fallback probes, warning/error for operational failures), and enforcing explicit timeouts on all subprocess and network/HTTP calls.
 *   **DOCUMENT FAILURE:** Always explain *why* with evidence.
 *   **RESPECT SETTLED DECISIONS:** Do not re-litigate choices recorded in `answers.md` or the plan's Decisions table unless they violate a spec ID or governance mandate.
 *   **NO GIT OPERATIONS:** You never commit, tag, or push. The Supervisor alone does that.
