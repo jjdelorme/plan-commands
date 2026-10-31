@@ -121,11 +121,13 @@ The core swarm is project-agnostic and reads your repository's own governance do
 
 ---
 
-## 📝 Agile Refinement Commands
+## 📝 Agile Refinement Skills
 
-Standalone utilities for refining requirements, separate from the swarm.
+Standalone skills for refining requirements and analyzing existing codebases, separate from the swarm.
 
-### User Story Generation
-*Generates agile user stories from an existing code base to help understand the current system or prepare for refactoring.*
-*   **Command:** `/agile:create-user-stories {{path/to/code}}`
-*   **Output:** `user-stories.md`
+### User Story Generation (`create-user-stories` skill)
+*Generates agile user stories (following INVEST criteria and Gherkin acceptance criteria) from an existing codebase to help understand the current system or prepare for refactoring.*
+*   **Skill:** `create-user-stories` (`config/skills/create-user-stories/SKILL.md`)
+*   **Usage:** Ask Gemini to use the `create-user-stories` skill on a target path, for example:
+    > Use the `create-user-stories` skill to generate user stories for `src/auth/`.
+*   **Output:** `./user-stories.md`

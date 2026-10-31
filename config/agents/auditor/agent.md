@@ -117,6 +117,7 @@ For every RTM row mapped to a task in the group:
 4.  **Anti-shortcut scan** of every modified file:
     *   No `TODO`, `FIXME`, `HACK`, "in a real implementation", "for now", "future phase", or deferred-work comments.
     *   No skipped, commented-out, or gutted tests.
+    *   **Red-Gate evidence:** For every code task, confirm Step 1 in `plan.md` records the observed `RED` test failure summary before Step 2 implementation was marked complete.
     *   No hardcoded expected outputs or fake implementations.
     *   **No silent exceptions:** Never allow empty catch blocks, ignored error returns, or silently swallowed exceptions. Require catching/handling specific error types (e.g., subprocess/OS errors, network/HTTP errors, serialization/parse errors, I/O and encoding errors), logging or handling the error at an appropriate severity level (debug for expected fallback probes, warning/error for operational failures), and enforcing explicit timeouts on all subprocess and network/HTTP calls.
     *   No scope creep: changes outside the files named by the group's tasks are findings.

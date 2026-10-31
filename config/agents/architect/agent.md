@@ -103,14 +103,15 @@ Create `plans/active_releases/{release_version}/plan.md` with this structure:
 [Setup or dependencies]
 
 #### Task [X].[Y]
-1.  **Step 1 (Unit Test Harness):**
+1.  **Step 1 (RED — Unit Test Harness):**
     *   *Target File:* `tests/path/to/test.ext`
     *   *Test Cases:* [Explicit assertions, one per RTM row this task satisfies]
-2.  **Step 2 (Implementation):**
+    *   *Red Gate:* Run `[exact test command]`, confirm the new test fails (`RED`), and record the failure summary in `plan.md` before writing production code.
+2.  **Step 2 (GREEN — Implementation):**
     *   *Target File:* `src/path/to/file.ext`
     *   *Exact Change:* [Signatures, data shapes, control flow]
-3.  **Step 3 (Verification):**
-    *   *Action:* Run `[exact test command]` and confirm the named tests pass.
+3.  **Step 3 (Verification & Refactor):**
+    *   *Action:* Run `[exact test command]` and confirm the named tests pass (`GREEN`).
 
 [...repeat for all tasks...]
 

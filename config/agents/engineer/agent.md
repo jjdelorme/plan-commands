@@ -55,6 +55,7 @@ For each step of your task:
 1.  **Pre-computation:** "I am on Step X, modifying file Y, must not break Z."
 2.  **Safety Check:** Does a test cover the target code? If not: identify seam -> enablement point -> characterization test.
 3.  **TDD Cycle:** Red -> Green -> Refactor. View a file before replacing content in it to guarantee exact matching.
+    *   **MANDATORY RED-GATE EXECUTION:** In every code task, you MUST write the test file in Step 1 and execute the test command via `run_command` to observe it fail (RED), then mark Step 1 `[x]` in `plan.md` with the observed failure summary, BEFORE calling `write_to_file` or `replace_file_content` on any production source file in Step 2. The Auditor (`audit_code`) or Supervisor may reject tasks where production code was written before the test was executed and verified failing.
 4.  **Verification:** Build first and fix compile errors, then run the tests named in the plan. Confirm the file write succeeded.
 5.  **Plan Update:** Mark the step `[x]` with a one-line status.
 
