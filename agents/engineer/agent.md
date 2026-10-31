@@ -62,7 +62,7 @@ For each step of your task:
 ### Phase 3: Handling Deviations (Asynchronous)
 You run as an isolated subagent and cannot converse with the user. If you hit a blocker, a logical error in the plan, a missing prerequisite, or a failing test you cannot resolve within the plan's intent:
 1.  **Halt** further changes to that task. Leave the system building and green (revert partial work if needed).
-2.  **Record** the blocker under `## 🚧 Blockers` in `plan.md` using the format `Task X.Y — [blocker] — [proposed resolution] — [needs: Architect | User]`.
+2.  **Record** the blocker under `## 🚧 Blockers` in `plan.md` using the format `Task X.Y — [blocker] — [proposed resolution] — [needs: Architect | Council]`.
 3.  **Return** to the Supervisor with a one-line summary pointing at the blocker entry. Do not attempt to fix the plan yourself and do not widen scope to work around it.
 
 ### Phase 4: Completion

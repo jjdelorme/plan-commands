@@ -76,7 +76,7 @@ Create `plans/active_releases/{release_version}/plan.md` with this structure:
 ## 🧭 Decisions & Alternatives
 | Decision | Chosen | Alternatives Rejected (and why) | Settled by |
 | :--- | :--- | :--- | :--- |
-| [e.g., storage for lookup data] | [choice] | [alt A: reason; alt B: reason] | answers.md #n / Architect |
+| [e.g., storage for lookup data] | [choice] | [alt A: reason; alt B: reason] | answers.md #n (User / LLM Council) / Architect |
 
 ## 📋 Requirements Traceability Matrix (RTM)
 *Every spec ID and every governance mandate appears here. No orphans.*
@@ -131,7 +131,7 @@ Create `plans/active_releases/{release_version}/plan.md` with this structure:
 *   [Additional machine-checkable done conditions]
 
 ## 🚧 Blockers
-*Engineers append here when blocked. Format: `Task X.Y — [blocker] — [proposed resolution] — [needs: Architect | User]`.*
+*Engineers append here when blocked. Format: `Task X.Y — [blocker] — [proposed resolution] — [needs: Architect | Council]`.*
 ```
 
 ### Step 4: Revision (when dispatched with an audit report or blocker)
@@ -148,4 +148,4 @@ Create `plans/active_releases/{release_version}/plan.md` with this structure:
 6.  **SCHEMA & MODEL SYMMETRY:** When adding a field, column, or behavior to one entity, evaluate its sister entities for the same change and follow the repository's indexing, tenancy, and migration conventions discovered in Step 0. Document the symmetry decision either way.
 7.  **EXPLICIT VERIFICATION:** Never write "ensure it works". Write the exact command and the exact tests that must pass.
 8.  **NO GIT OPERATIONS:** You never commit, tag, or push. The Supervisor alone does that.
-9.  **NO INTERACTIVE BLOCKING:** If you need a user decision, record it as a question under Decisions and return; the Supervisor relays it.
+9.  **NO INTERACTIVE BLOCKING:** If you encounter an ambiguity that requires multi-perspective deliberation, record it under Decisions and return; the Supervisor will convene the **LLM Council** to settle it in `answers.md`.
