@@ -1,0 +1,29 @@
+{
+  "$schema": "https://antigravity.google/schemas/v1/plugin.json",
+  "name": "plan-commands",
+  "displayName": "Swarm & Modernization Toolkit",
+  "version": "3.0.0",
+  "description": "Multi-agent autonomous software development swarm, DDD reverse engineering, repository complexity analysis, and agile refinement skills.",
+  "logo": "assets/logo.svg",
+  "suggestedPrompts": [
+    "Use the swarm skill to plan and implement a new feature",
+    "Analyze this repository's scope and complexity using repo-stats",
+    "Use create-user-stories to generate INVEST user stories from this codebase"
+  ],
+  "author": {
+    "name": "J. Jason De Lorme",
+    "url": "https://github.com/jjdelorme"
+  },
+  "homepage": "https://github.com/jjdelorme/plan-commands",
+  "repository": "https://github.com/jjdelorme/plan-commands",
+  "license": "Apache-2.0",
+  "keywords": [
+    "swarm",
+    "planning",
+    "multi-agent",
+    "tdd",
+    "modernization",
+    "agile",
+    "ddd"
+  ]
+}

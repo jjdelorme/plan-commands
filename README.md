@@ -1,35 +1,64 @@
-# Gemini Swarm & Modernization Toolkit
+# Swarm & Modernization Toolkit
 
-A Gemini CLI Extension that provides a **Multi-Agent Swarm** for autonomous software development.
-
-**See** [Gemini CLI Extensions](https://github.com/google-gemini/gemini-cli/blob/main/docs/extensions/index.md) for more details.
+An [Antigravity Plugin](https://antigravity.google/docs/build-plugins/) that provides a **Multi-Agent Swarm** for autonomous software development, DDD reverse engineering, repository complexity analysis, and agile user story generation.
 
 **Credits**: [@dandobrin](https://github.com/ddobrin), [@jjdelorme](https://github.com/jjdelorme) & [@cedricyao](https://github.com/cedricyao). Parts of this work were adapted from Dan's [production serverless repository](https://github.com/GoogleCloudPlatform/serverless-production-readiness-java-gcp/tree/main/genai/quotes-llm/.gemini/commands).
 
 ## Prerequisites
-Install the [Gemini CLI](https://github.com/google-gemini/gemini-cli)
+Install the [Google Antigravity CLI (`agy`)](https://antigravity.google/docs/cli/reference) or Antigravity App / IDE.
 
-## Extension Installation
-From your command line:
+## Plugin Installation
 
-```bash
-gemini extensions install https://github.com/jjdelorme/plan-commands
-```
-
-Or for local development / manual deployment:
+Install directly from GitHub using the Antigravity CLI:
 
 ```bash
-./deploy.sh
+agy plugin install https://github.com/jjdelorme/plan-commands
 ```
 
-That is the whole setup. The extension ships one skill (`swarm`) and four subagents (`product_owner`, `architect`, `engineer`, `auditor`). The Gemini CLI discovers them on its own; no per-project files, environment variables, or restarts are required.
+Or validate and install from a local clone:
+
+```bash
+# Validate plugin.json and all bundled skills/agents
+agy plugin validate --strict .
+
+# Install into ~/.gemini/config/plugins/plan-commands
+agy plugin install .
+
+# Verify installation
+agy plugin list
+```
+
+*(Alternatively, run `./deploy.sh` to validate and install locally.)*
+
+That is the whole setup. The plugin bundles **4 skills** (`swarm`, `create-user-stories`, `repo-stats`, `agent-platform-skill-registry`) and **5 custom agents/subagents** (`product_owner`, `architect`, `engineer`, `auditor`, `reverse_engineer`). Antigravity discovers them automatically across your workspace sessions.
+
+### Plugin Directory Structure
+
+```text
+plan-commands/
+├── plugin.json               # Antigravity plugin manifest
+├── README.md                 # Plugin documentation
+├── assets/
+│   └── logo.svg              # Plugin icon (1:1 SVG)
+├── agents/                   # Custom agents & subagents
+│   ├── architect/agent.md
+│   ├── auditor/agent.md
+│   ├── engineer/agent.md
+│   ├── product_owner/agent.md
+│   └── reverse_engineer/agent.md
+└── skills/                   # Bundled skills
+    ├── agent-platform-skill-registry/
+    ├── create-user-stories/
+    ├── repo-stats/
+    └── swarm/
+```
 
 ### Using the Swarm
-In any project, ask Gemini to use the swarm for a piece of work, for example:
+In any project, invoke `/swarm` or ask Antigravity to use the swarm for a piece of work, for example:
 
 > Use the swarm skill to add OAuth login to this service.
 
-Gemini takes on the **Supervisor** role defined by the skill and drives the lifecycle below, stopping for your input only at the discovery questions, the plan approval gate, each commit, and each release tag.
+The agent takes on the **Supervisor** role defined by the `swarm` skill and drives the lifecycle below, stopping for your input only at the discovery questions, the plan approval gate, each commit, and each release tag.
 
 ---
 
@@ -43,6 +72,7 @@ The swarm manages the software development lifecycle with a **Plan -> Audit -> A
 *   **Architect (`architect`)**: The Planner. Discovers repository governance rules, then writes a concrete `plan.md` whose Requirements Traceability Matrix maps every spec ID to a task and a named test.
 *   **Engineer (`engineer`)**: The Builder. Implements one task at a time via Red-Green-Refactor and records blockers in the plan instead of guessing.
 *   **Auditor (`auditor`)**: The Gatekeeper, in two modes. `audit_design` checks the spec against the research and the plan against the spec and governance before you are asked to approve anything. `audit_code` walks the traceability matrix, builds, runs the tests, and hunts for shortcuts before anything is committed.
+*   **Reverse Engineer (`reverse_engineer`)**: The DDD Domain Analyst. Deconstructs legacy applications, data stores, and brownfield codebases into stack-agnostic Open Knowledge Format (`okf/`) bundles or Phase 0 Research Context Reports (`plans/research/<topic>.md`).
 
 ### 🔄 Protocol Lifecycle
 
@@ -87,7 +117,7 @@ graph TD
 Automated return loops are capped. If the design audit rejects twice, the Supervisor stops and shows you the impasse rather than looping.
 
 ### Workspace Layout
-```
+```text
 plans/
   00-ROADMAP.md                      # Master roadmap & project versioning scheme (Product Owner)
   research/                          # Context reports before a release is formed
@@ -99,35 +129,34 @@ plans/
   audit/                             # Auditor reports (git-ignored)
 ```
 
-### Workspace Maintenance: Archiving Releases
-As the swarm executes, `plans/` accumulates completed releases and reports. To keep the agent's context clean:
-
-```bash
-/swarm:archive
-```
-**What it does:**
-1. Reads the Master Roadmap to identify completed releases.
-2. Moves the corresponding folders from `plans/active_releases/` into `plans/archive/`.
-3. Updates your project's `.geminiignore` so archived files are hidden from the AI's context.
-
 ### Extending the Swarm (Optional)
-The core swarm is project-agnostic and reads your repository's own governance documents (agent instruction files, contributor guides, architecture indexes) to learn project-specific rules. Put project conventions there rather than editing the agents. You can also route work to specialized agents by adding rules to your project's `GEMINI.md`:
+The core swarm is project-agnostic and reads your repository's own governance documents (agent instruction files, contributor guides, architecture indexes) to learn project-specific rules. Put project conventions there rather than editing the agents. You can also route work to specialized agents by adding rules to your project's `GEMINI.md` or `AGENTS.md`:
 
 ```markdown
 # Swarm Routing & Delegation Rules
-- For codebase investigation, delegate to the `scout` agent instead of investigating directly.
+- For codebase investigation, delegate to the `reverse_engineer` agent instead of investigating directly.
 - The `auditor` agent MUST use the `graphdb` skill when verifying changes.
 ```
 
 ---
 
-## 📝 Agile Refinement Skills
+## 🛠️ Additional Bundled Skills
 
-Standalone skills for refining requirements and analyzing existing codebases, separate from the swarm.
+Standalone skills for refining requirements, analyzing repositories, and managing the Enterprise Skill Registry.
 
 ### User Story Generation (`create-user-stories` skill)
 *Generates agile user stories (following INVEST criteria and Gherkin acceptance criteria) from an existing codebase to help understand the current system or prepare for refactoring.*
-*   **Skill:** `create-user-stories` (`config/skills/create-user-stories/SKILL.md`)
-*   **Usage:** Ask Gemini to use the `create-user-stories` skill on a target path, for example:
+*   **Skill:** `create-user-stories` (`skills/create-user-stories/SKILL.md`)
+*   **Usage:** Invoke `/create-user-stories` or ask the agent to use the `create-user-stories` skill on a target path:
     > Use the `create-user-stories` skill to generate user stories for `src/auth/`.
 *   **Output:** `./user-stories.md`
+
+### Repository Scope & Complexity Analyzer (`repo-stats` skill)
+*Analyzes any repository's scope, file and line counts, language breakdown, AST and branch complexity hotspots, and 0..5 Complexity Factor, with an optional standalone HTML dashboard.*
+*   **Skill:** `repo-stats` (`skills/repo-stats/SKILL.md`)
+*   **Usage:** Invoke `/repo-stats` or ask the agent:
+    > Analyze this repository's scope and complexity using `repo-stats`.
+
+### Agent Platform Skill Registry (`agent-platform-skill-registry` skill)
+*Zero-dependency CLI for creating, updating, installing, and searching skills in the Gemini Enterprise Agent Platform Skill Registry.*
+*   **Skill:** `agent-platform-skill-registry` (`skills/agent-platform-skill-registry/SKILL.md`)

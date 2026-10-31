@@ -22,7 +22,7 @@ This skill provides a **zero-dependency** CLI (`scripts/skill_registry_ops.py`) 
 
 ## CLI Quick Reference (All Operations)
 
-Set `SCRIPT="/home/workspace/.gemini/skills/agent-platform-skill-registry/scripts/skill_registry_ops.py"` (or `~/.gemini/skills/agent-platform-skill-registry/scripts/skill_registry_ops.py`):
+Set `SCRIPT="scripts/skill_registry_ops.py"` from this skill's directory (or `SCRIPT="$HOME/.gemini/config/plugins/plan-commands/skills/agent-platform-skill-registry/scripts/skill_registry_ops.py"`):
 
 ```bash
 # 1. Upload or Upsert a Skill Folder (auto-reads SKILL.md & waits for LRO completion)

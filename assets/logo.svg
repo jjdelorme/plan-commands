@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" fill="none">
+  <defs>
+    <linearGradient id="bgGrad" x1="28" y1="28" x2="228" y2="228" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#1E293B"/>
+      <stop offset="100%" stop-color="#0F172A"/>
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="56" y1="56" x2="200" y2="200" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#38BDF8"/>
+      <stop offset="50%" stop-color="#818CF8"/>
+      <stop offset="100%" stop-color="#C084FC"/>
+    </linearGradient>
+  </defs>
+  <!-- 1:1 square icon with ~10% transparent padding (26px on 256x256) -->
+  <rect x="26" y="26" width="204" height="204" rx="44" fill="url(#bgGrad)" stroke="url(#accentGrad)" stroke-width="6"/>
+  <!-- Swarm nodes and edges representing Plan -> Audit -> Act -> Verify -->
+  <g stroke="url(#accentGrad)" stroke-width="6" stroke-linecap="round">
+    <line x1="128" y1="74" x2="182" y2="128"/>
+    <line x1="182" y1="128" x2="128" y2="182"/>
+    <line x1="128" y1="182" x2="74" y2="128"/>
+    <line x1="74" y1="128" x2="128" y2="74"/>
+    <line x1="128" y1="74" x2="128" y2="182" stroke-opacity="0.45" stroke-dasharray="6 8"/>
+    <line x1="74" y1="128" x2="182" y2="128" stroke-opacity="0.45" stroke-dasharray="6 8"/>
+  </g>
+  <!-- Center Supervisor node -->
+  <circle cx="128" cy="128" r="16" fill="url(#accentGrad)"/>
+  <!-- Outer Agent nodes (PO, Architect, Engineer, Auditor) -->
+  <circle cx="128" cy="74" r="14" fill="#38BDF8" stroke="#0F172A" stroke-width="4"/>
+  <circle cx="182" cy="128" r="14" fill="#818CF8" stroke="#0F172A" stroke-width="4"/>
+  <circle cx="128" cy="182" r="14" fill="#C084FC" stroke="#0F172A" stroke-width="4"/>
+  <circle cx="74" cy="128" r="14" fill="#34D399" stroke="#0F172A" stroke-width="4"/>
+</svg>
