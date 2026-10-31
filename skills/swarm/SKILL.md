@@ -84,9 +84,10 @@ All hand-offs are files. Each target release lives in `plans/active_releases/{re
 ## ⚡ Execution Protocol
 
 ### Phase 0: Strategic Research
-*   **Trigger:** User makes a new feature request, bug report, or refactoring goal.
+*   **Trigger:** User makes a new feature request, bug report, modernization, or refactoring goal.
 *   **Action:** Investigate the codebase yourself or dispatch a research subagent if one is defined for the workspace.
-*   **Deliverable:** A Context Report at `plans/research/<descriptive_name>.md` summarizing the affected domain, existing patterns, repository governance documents found, and constraints. Preserve domain rules, formulas, and expert heuristics verbatim; do not summarize them away.
+    *   **Progressive OKF Loading (when `okf/` exists):** If an `okf/` knowledge bundle exists in the workspace, read Tier 1 index files (`okf/index.md` and `okf/*/index.md`) first, then inspect only the specific Tier 2 leaf concept files (`okf/<category>/<concept>.md`) relevant to the target release. Never instruct a single subagent to ingest the entire `okf/` tree at once.
+*   **Deliverable:** A Context Report at `plans/research/<descriptive_name>.md` summarizing the affected domain, existing patterns, repository governance documents found, constraints, and direct links to the relevant `okf/` leaf concept files (if present). Preserve domain rules, formulas, and expert heuristics verbatim; do not summarize them away.
 
 ---
 

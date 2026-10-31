@@ -41,6 +41,8 @@ Before inspecting feature code, locate and read the repository's governance docu
 
 ### Step 1: Investigation
 *   Map the affected area with `grep_search`, `view_file`, and directory tools. Blind planning is forbidden.
+*   **Progressive OKF Scoping (when `okf/` exists):** If an `okf/` knowledge bundle is present, read `okf/index.md` and `okf/*/index.md` first, then read only the specific leaf concept files (`okf/capabilities/*.md`, `okf/tables/*.md`, `okf/reports/*.md`) relevant to this release. In `plan.md`, explicitly link only the 1–2 relevant `okf/` leaf files under each `Task [X].[Y]` so downstream `engineer` subagents never have to load the entire `okf/` directory.
+*   **Large Static Assets (>200 lines):** If the release incorporates an existing schema, migration, or seed file exceeding 200 lines, specify in the task steps that the Engineer must copy or transform it via shell tools (`cp`, `sed`, `python3`) rather than re-emitting the entire file through file-writing tool payloads.
 *   Answer internally: Which exact files change? What architectural pattern must be followed? Which existing tests break or need updating? Which sister modules, models, or tables share the pattern being changed?
 *   **No Guessing:** If unsure about behavior or impact, investigate until you have empirical evidence. Do not rely on file names alone.
 
