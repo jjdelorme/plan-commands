@@ -45,19 +45,42 @@ subagent: true
 
 ## ⚡ EXECUTION PROTOCOL
 
-### Phase 1: Plan Ingestion & Baseline
-1.  Read the complete plan, the RTM rows for your task, and `spec.md` entries those rows reference.
-2.  Read the files relevant to your first step to establish a baseline.
-3.  Recite briefly what you are about to do and which requirement IDs it satisfies.
+### Phase 1: Plan Ingestion, Toolchain Check & Baseline
+1.  Read the complete plan, the RTM rows for your task/group, and `spec.md` entries those rows reference.
+2.  **Toolchain & Compiler Pre-Check:**
+    *   Before running build or test commands, verify that the active compiler on `PATH` resolves to a full SDK installation matching the project's target language release (exporting the SDK path if the default system runtime lacks a compiler binary).
+    *   When targeting language runtimes that restrict dynamic agent self-attachment, ensure the unit-test mock framework is configured for subclass/proxy mock generation.
+3.  Read the files relevant to your first step to establish a baseline.
+4.  Recite briefly what you are about to do and which requirement IDs it satisfies.
 
-### Phase 2: The Implementation Loop
-For each step of your task:
+### Phase 2: The Implementation Loop (Dual-Layer TDD & Full-Fidelity Implementation)
+For each step of your task/group:
 1.  **Pre-computation:** "I am on Step X, modifying file Y, must not break Z."
-2.  **Safety Check:** Does a test cover the target code? If not: identify seam -> enablement point -> characterization test.
-3.  **TDD Cycle:** Red -> Green -> Refactor. View a file before replacing content in it to guarantee exact matching.
-    *   **MANDATORY RED-GATE EXECUTION:** In every code task, you MUST write the test file in Step 1 and execute the test command via `run_command` to observe it fail (RED), then mark Step 1 `[x]` in `plan.md` with the observed failure summary, BEFORE calling `write_to_file` or `replace_file_content` on any production source file in Step 2. The Auditor (`audit_code`) or Supervisor may reject tasks where production code was written before the test was executed and verified failing.
-4.  **Verification:** Build first and fix compile errors, then run the tests named in the plan. Confirm the file write succeeded.
-5.  **Plan Update:** Mark the step `[x]` with a one-line status.
+2.  **Dual-Layer TDD Architecture (Service $\rightarrow$ Persistence Adapter Seam):**
+    *   **Layer 1 — Fast Isolated Unit Tests (`*ServiceTest`, `*MapperTest`, UI `*.test.*`):**
+        *   Design every backend domain service to depend on an injected persistence adapter/repository (which encapsulates SQL queries and parameter bindings) and caller context.
+        *   Write isolated unit tests (`*ServiceTest`) BEFORE production service code that mock the persistence adapter and caller context to test real service-layer domain computations, data splitting/normalization boundary conditions attested in `okf/`, role-based authorization exceptions, and binary export byte parsing.
+        *   **Anti-Tautology Rule:** Never mock the class under test, and never write a test that merely stubs `when(repo.find()).thenReturn(dto)` and asserts `assertEquals(dto, service.find())` without testing service logic, parameter validation, or `verify(repo)` interaction contracts.
+    *   **Layer 2 — Real Database & Security Integration Tests (`*IntegrationTest`):**
+        *   Write integration tests backed by an embedded/ephemeral database initialized with the baseline schema migration to verify:
+            1. `*SchemaIntegrationTest`: exact canonical schema table count and column count in `information_schema.tables` and `information_schema.columns` (when a canonical `.sql` DDL is present).
+            2. `*SecurityIntegrationTest`: HTTP security tests verifying `401 Unauthorized` (unauthenticated), `403 Forbidden` (insufficient role), and `200 OK` (authorized caller), plus request-scoped caller context claim population.
+            3. Domain `*IntegrationTest`: real SQL `SELECT`/`INSERT`/`UPDATE`/`DELETE` round-trips through persistence adapters and HTTP handler endpoints.
+3.  **Mandatory Implementation Fidelity Rules:**
+    *   **1:1 Canonical Schema Migration:** When a canonical `.sql` DDL file is present, generate the baseline schema migration directly from it so 100% of tables and columns match 1:1 (zero invented tables, zero omitted tables/columns).
+    *   **100% Entity Attribute Persistence:** When implementing a multi-column entity from `data-structures/*.md` or the canonical schema, map **all** columns in the domain model/DTO, persistence row mapper, `SELECT`, `INSERT`, and `UPDATE` statements—never stub out an entity with only 2 or 3 fields.
+    *   **Compile-Safe Parameterized Queries:** Always pass both `(sql, paramSource)` to parameterized `.update(sql, params)` calls. Never call single-argument `.update(params)` without the SQL statement string.
+    *   **Client UI Directory, Full-Fidelity Views & Test Hygiene:**
+        *   Place all client UI components, views/pages, hooks, and unit test files inside the UI project's canonical source directory (`<ui-root>/src/`).
+        *   Implement complete, interactive UI views matching `okf/capabilities/*.md` (and any visual reference assets in the workspace)—including search/filter controls, multi-column data grids, create/edit forms, validation alerts, and role-based action gating—wired to the **real backend API endpoints** (never placeholder/dummy/mock URLs or `< 45`-line stubs).
+        *   Wire the root application shell component with a navigation header/sidebar/tab router that links and renders **every** implemented capability view.
+        *   Write behavioral UI component tests (`*.test.*` / `*.spec.*`) that test both domain data rendering from mocked real backend endpoints AND user interactions (simulating input changes and button clicks on filters, forms, and action buttons while asserting outgoing network request URLs, HTTP methods, and payloads)—never write trivial smoke-only render tests.
+        *   In UI component tests, always await initial async data-loading effects so zero unwrapped async state-update warnings are emitted to stderr.
+        *   In UI export/download tests, mock network fetch, `URL.createObjectURL`, or anchor `.click()` rather than triggering unimplemented `window.location` navigation in simulated DOM test runners.
+4.  **Verification & Hygiene Check:**
+    *   Run the full backend and UI verification commands from the plan and confirm exit code `0` with zero compilation errors, zero test failures, and zero async state-update or DOM navigation stderr errors.
+    *   Delete any temporary generator or scratch files (`generate_*`, `scratch*`, `Debug*`) from the workspace root before finishing.
+5.  **Plan Update:** Mark completed tasks/steps `[x]` in the plan file and update `status.md`.
 
 ### Phase 3: Handling Deviations (Asynchronous)
 You run as an isolated subagent and cannot converse with the user. If you hit a blocker, a logical error in the plan, a missing prerequisite, or a failing test you cannot resolve within the plan's intent:

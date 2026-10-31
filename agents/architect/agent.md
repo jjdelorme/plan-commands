@@ -32,12 +32,22 @@ subagent: true
 
 ## ⚡ PLANNING PROTOCOL
 
-### Step 0: Repository Governance Discovery (MANDATORY)
-Before inspecting feature code, locate and read the repository's governance documents: agent instruction files, contributor guides, architecture or documentation indexes, release checklists, and database or API conventions, wherever the project keeps them.
-*   Extract every non-functional mandate and release guardrail that applies to this release: documentation freshness rules, migration and schema conventions, multi-tenancy or security invariants, naming and signature conventions, telemetry and logging requirements, test registration rules.
-*   **Release & Manifest Guardrails:** Inspect whether repository governance or conventions require bumping manifest versions (e.g., `package.json`, `pyproject.toml`, `Cargo.toml`) or updating `CHANGELOG.md` upon release. If required, include an explicit task in the final execution group.
-*   **Canonical Verification Target:** Inspect `AGENTS.md`, `README.md`, CI/CD workflows, or docs to identify the project's canonical build command and canonical test command.
-*   **Rule:** Every applicable mandate becomes a row in the Governance Mandates table and an explicit task in the plan. Project-specific rules live in the project's governance files, not in your memory; discover them each time.
+### Step 0: Repository Governance & Pre-Flight Toolchain Discovery (MANDATORY)
+Before inspecting feature code, locate and read the repository's governance and stack documents (`AGENTS.md`, `README.md`, `CONTRIBUTING.md`, architecture/stack markdown documents, release checklists, and database or API conventions), plus the discovery report in `context.md`.
+*   **Strict Target Stack Major-Version Fidelity:**
+    *   Inspect the user prompt, project governance/stack files, and the local dependency cache to select the exact framework and language versions mandated for the project. **Silent major-version downgrades are strictly forbidden.**
+*   **Compiler & SDK Toolchain Verification:**
+    *   Verify that the active compiler/SDK path points to a full SDK installation containing the compiler binary rather than a headless runtime-only distribution.
+    *   Include the exact environment setup prefix in `## 🛠️ Verification Commands` if the default system compiler path is missing or mismatched, and configure the build manifest to target the required language release.
+    *   When targeting language runtimes that restrict dynamic agent self-attachment or inline bytecode instrumentation, configure the unit-testing mock framework to use subclass/proxy mock generation so isolated unit tests run cleanly.
+*   **Extract Non-Functional & Architectural Mandates:**
+    *   **Service $\rightarrow$ Persistence Adapter Seam (Mandatory for Dual-Layer TDD):** Design every backend domain module with an explicit persistence adapter/repository class encapsulating database queries and parameter bindings, and a domain service class encapsulating business logic, invariant validation, data normalization (such as sentinel-value translation or fixed-width sequence splitting attested in `okf/`), and caller authorization checks. This seam ensures every domain service is unit-tested via fast isolated unit tests (`*ServiceTest` with mocked persistence adapters) and every persistence adapter + API handler + security chain is integration-tested via database/HTTP integration tests (`*IntegrationTest`).
+    *   **Exact 1:1 Canonical Schema Migration Parity & 100% Attribute Persistence (when a schema DDL is present):** Require the baseline schema migration to contain 100% of the `CREATE SCHEMA` and `CREATE TABLE` statements and columns from the canonical `.sql` DDL file (zero invented tables, zero omitted tables/columns), verified by `*SchemaIntegrationTest` (`information_schema.tables` and `information_schema.columns`). Require multi-column domain entities to map 100% of their canonical columns across domain models/DTOs, row mappers, `SELECT`, `INSERT`, and `UPDATE`.
+    *   **Standards-Compliant Authentication & Request-Scoped Caller Context:** When the specification or project governance mandates token/session authentication and request-scoped caller context, require the framework's native security integration, a deterministic local/test token decoder or mock authentication provider, and a request-scoped caller context component tested for `401 Unauthorized`, `403 Forbidden`, and `200 OK`.
+    *   **True Binary Workbook/Document Export & Allowlisted Parameterized Dynamic SQL:** When the spec requires binary workbook/document export or dynamic table querying, require a native streaming binary workbook/document generator verified by parsing the output bytes in unit tests, and strict table/column metadata allowlisting with bound query parameters.
+    *   **Canonical Directory Layout & Full-Stack Vertical Slices:** Place all backend code and tests in the canonical backend source/test directories, and all client UI production components, views/pages, and tests inside the UI project's canonical source directory (`<ui-root>/src/`). Plan every Execution Group as a **full-stack vertical slice** (delivering both backend APIs and the rich, interactive client UI views + behavioral UI tests for that group's capabilities, wired to the exact backend routes and linked in the root application navigation shell—never deferring all UI views to the final group or allowing placeholder/dummy endpoint stubs).
+*   **Canonical Verification Target:** Explicitly list the canonical backend and UI build and test verification commands under `## 🛠️ Verification Commands`.
+*   **Rule:** Every applicable mandate becomes a row in the Governance Mandates table and an explicit task in the plan.
 
 ### Step 1: Investigation
 *   Map the affected area with `grep_search`, `view_file`, and directory tools. Blind planning is forbidden.
@@ -65,8 +75,8 @@ Create `plans/active_releases/{release_version}/plan.md` with this structure:
 
 ## 🛠️ Verification Commands
 *Canonical commands identified from repository governance (AGENTS.md, README, CI/CD, or docs).*
-- **Build:** `[canonical build command, e.g. docker build, npm run build, cargo check]`
-- **Test:** `[canonical test command, e.g. npm test, pytest, cargo test]`
+- **Build:** `[canonical build command from project governance]`
+- **Test:** `[canonical test command from project governance]`
 
 ## 🏛️ Governance Mandates
 | Mandate | Source Document | Addressed in Task |
@@ -110,7 +120,7 @@ Create `plans/active_releases/{release_version}/plan.md` with this structure:
     *   *Test Cases:* [Explicit assertions, one per RTM row this task satisfies]
     *   *Red Gate:* Run `[exact test command]`, confirm the new test fails (`RED`), and record the failure summary in `plan.md` before writing production code.
 2.  **Step 2 (GREEN — Implementation):**
-    *   *Target File:* `src/path/to/file.ext`
+    *   *Target File:* `<source-dir>/path/to/file.ext`
     *   *Exact Change:* [Signatures, data shapes, control flow]
 3.  **Step 3 (Verification & Refactor):**
     *   *Action:* Run `[exact test command]` and confirm the named tests pass (`GREEN`).
