@@ -32,7 +32,7 @@ Authoritative Specification: `https://github.com/GoogleCloudPlatform/knowledge-c
 
 Before generating an `okf/` bundle, fetch and read the authoritative OKF specification via:
 ```bash
-gh api "repos/GoogleCloudPlatform/knowledge-catalog/contents/okf/SPEC.md" -H "Accept: application/vnd.github.raw"
+curl -fsSL "https://raw.githubusercontent.com/GoogleCloudPlatform/knowledge-catalog/main/okf/SPEC.md"
 ```
 Follow the specification's current version and conventions. If running in an offline environment where the remote specification cannot be fetched, apply these baseline OKF structural conventions:
 
@@ -65,7 +65,7 @@ Follow the specification's current version and conventions. If running in an off
 1. **The Clean-Room Zero-Assumption Rule:**
    Your documentation passes if and only if an engineer (or fresh AI session) with **zero access to the original source code** can implement functionally identical behavior on the first attempt using *only* your `okf/` bundle—without guessing parameter defaults, inferring schemas, or inventing error handling.
 2. **Implementation-Agnostic Domain Extraction (DDD Lens):**
-   Capture **100% of the business behavior, formulas, validations, state transitions, and data schemas**, and **0% of the source framework boilerplate**. Never leak language- or framework-specific mechanics (such as framework lifecycle hooks, UI state-serialization internals, low-level control-flow constructs, or private helper names) into business rules. Translate implementation mechanics into Domain-Driven Design primitives: **Bounded Contexts**, **Aggregates**, **Entities**, **Value Objects**, and **Domain Invariants**.
+   Capture **100% of the business behavior, formulas, validations, state transitions, data schemas, and external boundary contracts**, and **0% of the internal framework boilerplate**. Never leak language- or framework-specific mechanics (such as framework lifecycle hooks, SDK/HTTP client internals, UI state-serialization mechanics, low-level control-flow constructs, or private helper names) into business rules. Translate internal mechanics into Domain-Driven Design primitives (**Bounded Contexts**, **Aggregates**, **Entities**, **Value Objects**, and **Domain Invariants**) and isolate third-party systems or published interfaces behind **Anti-Corruption Layers (ACLs)** and **Published Languages**.
 3. **Two-Tier Context Hierarchy (Index Files vs. Leaf Concept Files):**
    Structure documentation for progressive disclosure so downstream agents never have to load the entire specification tree at once:
    * **Tier 1 — Index Files (`index.md`):** High-level architectural summaries and catalog tables with relative links to leaf concept files. Downstream planners (`product_owner` and `architect`) read Tier 1 indexes to plan releases and traceability matrices without exhausting their context window.
@@ -92,45 +92,53 @@ Follow the specification's current version and conventions. If running in an off
    * **Lifecycle & Side Effects:** Data mutations (creates, updates, deletes), external integrations, or file exports $\rightarrow$ **Command Side Effects**.
    * **Business Rules:** Filter predicates, conditional branches, calculations, and input validators $\rightarrow$ **Named Domain Invariants**.
 
-### Step 2: Generate Tier 2 Leaf Concept Files Under `okf/`
+### Step 2: External Systems & Published Contract Mapping (Context Map & ACLs)
+Identify all third-party (3P) dependencies, external APIs/webhooks, message queues, batch file exchanges, and published interfaces that a clean-room rebuild must continue to adhere to:
+1. **Separate Contract from Transport Boilerplate:** Discard internal SDK calls, HTTP/RPC client libraries, and transport wrappers, but preserve the **external contract** (endpoints/channels, auth model, payload/file schemas, status/error codes, and idempotency/ordering expectations).
+2. **Classify Strategic DDD Context Relationships:** Treat each external system as a distinct Bounded Context on the Context Map and classify the boundary relationship:
+   * **Anti-Corruption Layer (ACL) / Conformist:** For outbound calls or inbound events/files from 3P or legacy systems, expose the capability to the internal domain as a Domain Service in the Ubiquitous Language and document the exact translation map between external fields/codes and internal Domain Value Objects/Entities.
+   * **Open Host Service (OHS) / Published Language (PL):** For public APIs, webhooks, or export formats exposed by this application that external consumers depend on, preserve the exact published schema and behavioral contract.
+3. **Extract Failure & Fallback Invariants:** Document the domain behavior when an external system rejects a request, returns an error code, or is unavailable.
+
+### Step 3: Generate Tier 2 Leaf Concept Files Under `okf/`
 Create self-contained OKF markdown files (`kebab-case.md`) across six subdirectories:
 
 1. **`okf/domain/<bounded-context>.md`** (`type: Bounded Context`)
    * Ubiquitous Language glossary for the context.
-   * Core domain responsibilities and upstream/downstream relationships with other contexts.
+   * Core domain responsibilities and **Context Map** (upstream/downstream relationships with internal and external 3P contexts, labeled by DDD pattern: `ACL`, `Conformist`, `Open Host Service / Published Language`, or `Customer-Supplier`).
 2. **`okf/aggregates/<aggregate>.md`** (`type: DDD Aggregate`)
    * Aggregate Root identifier, encapsulated child entities and value objects.
    * Transactional consistency boundary (which entities/records must update atomically).
    * Aggregate-level domain invariants that must hold across all mutations.
 3. **`okf/capabilities/<capability>.md`** (`type: Business Capability`)
-   * **DDD Mapping:** Links to the Bounded Context, Aggregate Root, and `[table](../tables/<table>.md)` concepts read or mutated.
+   * **DDD Mapping:** Links to the Bounded Context, Aggregate Root, `[table](../tables/<table>.md)` concepts read or mutated, and any external `[data-structure](../data-structures/<structure>.md)` contracts consumed or published.
    * **Functional Interface Contract:** Screen or API inputs, controls, result columns, sorting/filtering rules, and actions. (Do not embed internal specification numbers like `"Capability 01"` into user-facing titles or labels).
-   * **Domain Rules, Validation & Persistence:** Field-level constraints, cross-field invariants, authorization gates, and exact persistence writes with `[^source]` footnotes.
-   * **Executable Gherkin Test Suite:** Complete `Feature`, `Background`, `Scenario`, and `Scenario Outline` blocks covering happy paths, boundary conditions, validation failures, and authorization checks.
+   * **Domain Rules, Validation & Persistence:** Field-level constraints, cross-field invariants, authorization gates, external Domain Service / ACL failure invariants, and exact persistence writes with `[^source]` footnotes.
+   * **Executable Gherkin Test Suite:** Complete `Feature`, `Background`, `Scenario`, and `Scenario Outline` blocks covering happy paths, boundary conditions, validation failures, external integration responses/rejections, and authorization checks.
 4. **`okf/reports/<report>.md`** (`type: Attested Computation`)
    * Include OKF computation frontmatter (`runtime`, `parameters`).
    * Under `# Computation`, provide the exact query or derivation formula, input parameters, sort order, and output schema.
 5. **`okf/data-structures/<structure>.md`** (`type: Data Structure`)
-   * Domain enumerations, lookup code mappings, flags/profile codes, and session/security context structures.
-   * If business logic depends on specific reference codes, list the complete code-to-meaning map verbatim under `# Schema` or `# Examples`.
+   * Domain enumerations, lookup code mappings, flags/profile codes, session/security context structures, and **Published Language / External Wire Schemas with ACL Translation Maps** (External Field/Code $\leftrightarrow$ Domain Property).
+   * If business logic or an external contract depends on specific reference codes, list the complete code-to-meaning map verbatim under `# Schema` or `# Examples`.
 6. **`okf/tables/<table>.md`** (`type: Database Table`)
    * Under `# Schema`, provide an exhaustive table: Field/Column Name, Data Type, Nullable, Default, Key Constraints (linked to target `[table](./<target>.md)`), Indexes, and DDD Property Mapping.
    * Reference/seed data requirements if the table is a static lookup catalog.
 
-### Step 3: Generate Tier 1 Index Files (`index.md`) & Update Log (`log.md`)
+### Step 4: Generate Tier 1 Index Files (`index.md`) & Update Log (`log.md`)
 1. Create an `index.md` inside each of the six subdirectories (`domain/`, `aggregates/`, `capabilities/`, `reports/`, `data-structures/`, `tables/`) containing a summary table and relative markdown links to every concept file in that directory.
 2. Create the root `okf/index.md` containing:
    * A system architectural overview.
-   * A Mermaid `flowchart TD` diagram mapping Presentation/API Surfaces $\rightarrow$ DDD Bounded Contexts $\rightarrow$ Persistence Entities/Tables (always wrap Mermaid node labels in double quotes, e.g., `id["Node Label"]`).
+   * A Mermaid `flowchart TD` diagram mapping Presentation/API Surfaces $\rightarrow$ DDD Bounded Contexts $\rightarrow$ Persistence Entities/Tables & External Systems (always wrap Mermaid node labels in double quotes, e.g., `id["Node Label"]`).
    * Relative links to each of the six category `index.md` files and `log.md`.
 3. Create or append to `okf/log.md` recording the timestamp, generator actor, and summary of extracted concepts.
 
-### Step 4: Independent Zero-Context Verification Pass
+### Step 5: Independent Zero-Context Verification Pass
 Never trust your own authoring context to audit completeness. Before concluding, you MUST run an independent verification pass in a **clean, separate context window** by spawning an ephemeral read-only reviewer subagent (using `define_subagent` with `EnableWriteTools: false` + `invoke_subagent`, or invoking the built-in read-only `research` subagent):
 
 1. **Dispatch the Ephemeral Verifier:**
    Provide the subagent ONLY the paths to the source codebase, schemas, visual assets, and `okf/` directory (do NOT pass your authoring narrative), with instructions to adversarially audit `okf/` across five checks:
-   * **Capability & Surface Completeness:** Compare every screen, endpoint, batch job, report, and data access procedure in the source codebase against `okf/capabilities/` and `okf/reports/`. List any omitted features or rules.
+   * **Capability, Surface & External Contract Completeness:** Compare every screen, endpoint, batch job, report, data access procedure, external 3P integration, and published interface in the source codebase against `okf/capabilities/`, `okf/reports/`, `okf/domain/`, and `okf/data-structures/`. List any omitted features, rules, or external boundary contracts.
    * **Clean-Room Zero-Assumption Bar:** Flag any lookup code map, formula, status code, or validation rule abbreviated with `"etc."` or `"similar fields"`, and any source-framework boilerplate or internal numbering (`"Capability 01"`) leaked into domain rules or UI labels.
    * **Gherkin Behavioral Coverage:** Confirm every capability in `okf/capabilities/*.md` has executable `Feature` / `Scenario` / `Scenario Outline` blocks covering happy paths, boundary conditions, validation failures, and authorization rules.
    * **Schema & Visual Asset Reconciliation:** Confirm every entity/table and field/column referenced in `okf/capabilities/*.md` and `okf/reports/*.md` is documented in `okf/tables/*.md` and reconciled against any target schema definition, and visually inspect (`view_file`) any screenshots to confirm they match the screens they are attributed to.
