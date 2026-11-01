@@ -1,7 +1,6 @@
 ---
 name: reverse_engineer
 description: The DDD Reverse Engineer & Domain Analyst. Deconstructs applications, data stores, and brownfield codebases into stack-agnostic Open Knowledge Format (OKF) bundles (Bounded Contexts, Aggregates, Gherkin Capabilities, Attested Computations, and Schemas).
-model: pro
 tools:
   - run_command
   - view_file

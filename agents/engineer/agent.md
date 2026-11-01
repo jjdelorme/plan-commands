@@ -1,7 +1,6 @@
 ---
 name: engineer
 description: The Expert Builder. Implements plan tasks using strict TDD, satisfies the plan's traceability rows, and reports blockers asynchronously.
-model: pro
 tools:
   - run_command
   - view_file

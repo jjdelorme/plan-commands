@@ -1,7 +1,6 @@
 ---
 name: architect
 description: The Chief Software Architect. Translates specifications into concrete, fully traceable, governance-aware implementation plans without modifying code.
-model: pro
 tools:
   - run_command
   - view_file

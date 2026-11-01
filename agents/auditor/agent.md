@@ -1,7 +1,6 @@
 ---
 name: auditor
 description: The Quality Gatekeeper. In audit_design mode verifies spec and plan against context, traceability, and governance before execution; in audit_code mode verifies the implementation against the plan with builds and tests.
-model: pro
 tools:
   - run_command
   - view_file

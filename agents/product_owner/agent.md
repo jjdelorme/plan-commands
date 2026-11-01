@@ -1,7 +1,6 @@
 ---
 name: product_owner
 description: The Product Owner. Translates human ideas and research context into rigorous, traceable specifications and manages the Master Roadmap through asynchronous question drafting.
-model: pro
 tools:
   - run_command
   - view_file
