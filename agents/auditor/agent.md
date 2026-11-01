@@ -52,17 +52,17 @@ Run every check and record a result for each.
     *   **Release Scheme Compliance:** Confirm that the target release version `{release_version}` conforms to the project's detected release scheme recorded in `plans/00-ROADMAP.md` (e.g., correct SemVer/CalVer syntax, proper `v` prefix).
     *   **Target Stack Major-Version Fidelity:** When the user prompt or project governance/stack files mandate specific language or framework versions, verify the plan specifies exact matching major versions and never silently downgrades a major version.
     *   **1:1 Canonical Schema & 100% Attribute Parity:** If a canonical `.sql` DDL file exists, verify the plan and `context.md`/`spec.md` state the exact table and column counts (`CREATE TABLE` count) and require 100% column persistence for target domain entities.
-    *   **Dual-Layer Testing Seam (Service $\rightarrow$ Persistence Adapter) & Vertical-Slice UI Parity:** Confirm the plan structures backend modules with a Service $\rightarrow$ Persistence Adapter seam, plans Execution Groups as **full-stack vertical slices** (reject any plan that defers all client UI views into a single task in the final group), and specifies isolated service unit tests (`*ServiceTest`), database/security integration tests (`*IntegrationTest`), and behavioral UI component tests wired to real backend API endpoints.
-    *   **Manifest & Changelog Guardrails:** If repository governance mandates updating package/build manifests or `CHANGELOG.md` upon release, confirm that corresponding tasks appear in the plan's final execution group.
+    *   **Dual-Layer Testing Seam (Service $\rightarrow$ Persistence Adapter) & Strict 1-Capability E2E Vertical Slices:** Confirm the plan structures backend modules with a Service $\rightarrow$ Persistence Adapter seam, plans every execution unit (`Slice 1` .. `Slice N`) as **strictly ONE single-capability end-to-end vertical slice** (automatically **REJECT** any plan that bundles multiple user capabilities into a single slice, splits a capability horizontally into a "Backend task/slice" and a "UI task/slice", or defers client UI views to a later slice), and specifies isolated service unit tests (`*ServiceTest`), database/security integration tests (`*IntegrationTest`), and behavioral UI component tests wired to real backend API endpoints via explicit `Red -> Green -> Refactor` steps.
+    *   **Manifest & Changelog Guardrails:** If repository governance mandates updating package/build manifests or `CHANGELOG.md` upon release, confirm that corresponding steps appear in the plan's final slice.
     *   **Verification Commands:** The plan explicitly lists canonical build and test commands identified from repository governance/CI in a standard '## 🛠️ Verification Commands' section. List missing mandates or missing verification commands.
 8.  **Concreteness:** No vague steps ("handle errors", "use a cached list", "add validation"). Every new data or asset has path, format, schema, source, size budget, and load mechanism. Every implementation step names exact files and signatures.
-9.  **Test precision:** Every task names an exact test file, explicit assertions, and the command that runs them.
+9.  **Test precision:** Every slice names exact unit, integration, and UI test files, explicit assertions, and the commands that run them.
 10. **Structural lenses:**
     *   *Name matches behavior:* each step and gate does what its name claims.
-    *   *Inputs available when needed:* no step depends on something produced by a later step or group.
-    *   *Group independence:* tasks within a group touch disjoint files.
+    *   *Inputs available when needed:* no step depends on something produced by a later step or slice.
+    *   *Single-capability E2E verticality:* each `Slice N` implements exactly one user-facing capability end-to-end across all stack layers (DB $\rightarrow$ Adapter $\rightarrow$ Service $\rightarrow$ API $\rightarrow$ UI View + Root Nav $\rightarrow$ Tests) without horizontal layer splitting or multi-capability batching.
     *   *Checkable termination:* success criteria are machine-checkable and produced by the plan's own steps.
-    *   *Cross-reference consistency:* summaries, task lists, RTM, and step details agree after edits.
+    *   *Cross-reference consistency:* summaries, slice lists, RTM, and step details agree after edits.
     *   *Guarded decisions:* each decision downstream work depends on names an alternative and why it lost.
 
 ### Report
@@ -109,30 +109,30 @@ A single unmet check in A or B yields **REJECT**. Route each finding by its tag.
 ## 🔬 GATE 2: `audit_code` PROTOCOL
 
 ### Inputs
-`plan.md` (with RTM), `spec.md`, the tasks of the group under audit, and the project's build and test instructions from its governance or configuration files.
+`plan.md` / `plan_slice{N}.md` (with RTM), `spec.md`, the vertical slice (`Slice N`) under audit, and the project's build and test instructions from its governance or configuration files.
 
 ### Audit Loop
-For every RTM row mapped to a task in the group:
-1.  **Locate:** Find the implementing code with `grep_search` and `view_file`. Cite file and lines.
-2.  **Compare:** Does the code match the task's exact intent, signatures, and data contracts? Does it satisfy the spec ID's Given/When/Then?
-3.  **Execute:** Execute the exact build and verification commands specified in the plan's Verification Commands section (exporting the full compiler SDK `PATH` if required) before evaluating test assertions. Then run the exact test named in the RTM row. A missing test, a failing build, a failing test, or a test that does not assert the requirement's behavior is an automatic **FAIL** for that row.
+For every RTM row mapped to `Slice N`:
+1.  **Locate:** Find the implementing code across all vertical layers (persistence adapter, domain service, API endpoint, and client UI view + navigation) with `grep_search` and `view_file`. Cite file and lines.
+2.  **Compare:** Does the code match the slice's exact end-to-end intent, signatures, and data contracts? Does it satisfy the spec ID's Given/When/Then?
+3.  **Execute:** Execute the exact build and verification commands specified in the plan's Verification Commands section (exporting the full compiler SDK `PATH` if required) before evaluating test assertions. Then run the exact unit, integration, and UI tests named in the RTM row. A missing test, a failing build, a failing test, a horizontal-only delivery (e.g., backend without UI or UI without backend), or a test that does not assert the requirement's behavior is an automatic **FAIL** for that row.
 4.  **Anti-shortcut, parity & repository hygiene scan** of every modified file:
     *   No `TODO`, `FIXME`, `HACK`, "in a real implementation", "will fail without real implementation", "for now", "future phase", or deferred-work comments.
     *   No skipped, commented-out, gutted, or tautological tests (reject any test that mocks the class under test or asserts a mock's canned return value with zero service transformation or interaction verification).
-    *   **Dual-Layer Test Coverage & Full-Fidelity UI Parity:** Verify that backend milestones include BOTH fast isolated service unit tests (`*ServiceTest`) AND database/security integration tests (`*IntegrationTest`). Verify that client UI views implement real interactive search filters, data tables, and forms wired to real backend API endpoints (automatically FAIL any dummy/mock/placeholder endpoint calls, any `< 45`-line stub view components, any root application shell that does not link all implemented views, or any smoke-only UI test that lacks domain data and interaction assertions), and execute with zero unwrapped async state-update warnings and zero simulated-DOM navigation errors.
+    *   **Dual-Layer Test Coverage & Full-Fidelity E2E Slice Parity:** Verify that `Slice N` includes BOTH fast isolated service unit tests (`*ServiceTest`) AND database/security integration tests (`*IntegrationTest`), PLUS the complete interactive client UI view (search filters, data tables, and forms wired to the real backend API route) and behavioral UI tests. Automatically FAIL any dummy/mock/placeholder endpoint calls, any `< 45`-line stub view components, any horizontal-only partial slice, any root application shell that does not link the implemented view, or any smoke-only UI test that lacks domain data and interaction assertions, and verify zero unwrapped async state-update warnings and zero simulated-DOM navigation errors.
     *   **1:1 Schema & Full-Attribute Persistence Parity:** When a canonical `.sql` DDL is present, verify that the baseline schema migration has 0 missing and 0 extra tables/columns compared to the canonical `.sql` DDL, and that multi-column domain entities persist 100% of their canonical columns (never a 2-column stub).
     *   **Standards-Compliant Security & True Binary Exports:** When required by project governance / `spec.md`, confirm token/session security is configured with a real decoder/validator and request-scoped caller context (reject hardcoded string-header filters), and confirm binary workbook/document exports use a native streaming binary generator verified by binary parsing in tests.
     *   **Clean Working Tree & Directory Hygiene:** Check `git status --porcelain` and reject if any temporary helper or debug scripts (`generate_*`, `scratch*`, `Debug*`) remain in the repository root, or if client UI files were placed outside the UI project's `src/` tree.
     *   **No silent exceptions:** Never allow empty catch blocks, ignored error returns, or silently swallowed exceptions. Require catching/handling specific error types (e.g., subprocess/OS errors, network/HTTP errors, serialization/parse errors, I/O and encoding errors), logging or handling the error at an appropriate severity level (debug for expected fallback probes, warning/error for operational failures), and enforcing explicit timeouts on all subprocess and network/HTTP calls.
-    *   No scope creep: changes outside the files named by the group's tasks are findings.
+    *   No scope creep: changes outside the files named by `Slice N` (such as implementing code belonging to `Slice N+1`) are findings.
 5.  **Governance rows:** For `GOV-` rows, verify the artifact (documentation, migration, index entry) actually exists and is current.
 6.  **Assess** each row as `Pass`, `Partial`, or `Fail`.
 
 ### Report
-Write `plans/audit/AUDIT_{release_version}_group{N}.md`:
+Write `plans/audit/AUDIT_{release_version}_slice{N}.md`:
 
 ```markdown
-# Code Audit: Release [release_version] — Group [N]
+# Code Audit: Release [release_version] — Slice [N]
 
 ## 📊 Verdict
 *   **Overall:** PASS / FAIL
@@ -141,7 +141,7 @@ Write `plans/audit/AUDIT_{release_version}_group{N}.md`:
 *   **Tests:** [command] → [passed/failed counts]
 
 ## 🕵️ Row-by-Row Evidence
-### [AC-01] [Summary] — Task [X.Y]
+### [AC-01] [Summary] — Slice [N]
 *   **Status:** ✅ Pass / ⚠️ Partial / ❌ Fail
 *   **Code:** `<source-dir>/path.ext` lines a–b
 *   **Test:** `tests/path.ext::test_name` → [passed / failed / missing]

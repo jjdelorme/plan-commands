@@ -44,13 +44,13 @@ Before inspecting feature code, locate and read the repository's governance and 
     *   **Exact 1:1 Canonical Schema Migration Parity & 100% Attribute Persistence (when a schema DDL is present):** Require the baseline schema migration to contain 100% of the `CREATE SCHEMA` and `CREATE TABLE` statements and columns from the canonical `.sql` DDL file (zero invented tables, zero omitted tables/columns), verified by `*SchemaIntegrationTest` (`information_schema.tables` and `information_schema.columns`). Require multi-column domain entities to map 100% of their canonical columns across domain models/DTOs, row mappers, `SELECT`, `INSERT`, and `UPDATE`.
     *   **Standards-Compliant Authentication & Request-Scoped Caller Context:** When the specification or project governance mandates token/session authentication and request-scoped caller context, require the framework's native security integration, a deterministic local/test token decoder or mock authentication provider, and a request-scoped caller context component tested for `401 Unauthorized`, `403 Forbidden`, and `200 OK`.
     *   **True Binary Workbook/Document Export & Allowlisted Parameterized Dynamic SQL:** When the spec requires binary workbook/document export or dynamic table querying, require a native streaming binary workbook/document generator verified by parsing the output bytes in unit tests, and strict table/column metadata allowlisting with bound query parameters.
-    *   **Canonical Directory Layout & Full-Stack Vertical Slices:** Place all backend code and tests in the canonical backend source/test directories, and all client UI production components, views/pages, and tests inside the UI project's canonical source directory (`<ui-root>/src/`). Plan every Execution Group as a **full-stack vertical slice** (delivering both backend APIs and the rich, interactive client UI views + behavioral UI tests for that group's capabilities, wired to the exact backend routes and linked in the root application navigation shell—never deferring all UI views to the final group or allowing placeholder/dummy endpoint stubs).
+    *   **Canonical Directory Layout & Strict 1-Capability End-to-End Vertical Slices:** Place all backend code and tests in the canonical backend source/test directories, and all client UI production components, views/pages, and tests inside the UI project's canonical source directory (`<ui-root>/src/`). Plan every execution unit as **strictly ONE single-capability end-to-end vertical slice (`Slice 1`, `Slice 2`, ..., `Slice N`)** that cuts through every layer of the stack: Database/Migration $\rightarrow$ Persistence Adapter $\rightarrow$ Domain Service $\rightarrow$ API Endpoint $\rightarrow$ Interactive Client UI View wired to the exact backend route + Root Application Navigation link $\rightarrow$ Unit, Integration & Behavioral UI Tests (`Red -> Green -> Refactor`). **A horizontal layer ("Backend", "Database", or "Client UI") is NEVER a slice. Never split a capability into a "Backend task" and a "UI task", and never bundle multiple capabilities into a single slice.**
 *   **Canonical Verification Target:** Explicitly list the canonical backend and UI build and test verification commands under `## 🛠️ Verification Commands`.
 *   **Rule:** Every applicable mandate becomes a row in the Governance Mandates table and an explicit task in the plan.
 
 ### Step 1: Investigation
 *   Map the affected area with `grep_search`, `view_file`, and directory tools. Blind planning is forbidden.
-*   **Progressive OKF Scoping (when `okf/` exists):** If an `okf/` knowledge bundle is present, read `okf/index.md` and `okf/*/index.md` first, then read only the specific leaf concept files (`okf/capabilities/*.md`, `okf/tables/*.md`, `okf/reports/*.md`) relevant to this release. In `plan.md`, explicitly link only the 1–2 relevant `okf/` leaf files under each `Task [X].[Y]` so downstream `engineer` subagents never have to load the entire `okf/` directory.
+*   **Progressive OKF Scoping (when `okf/` exists):** If an `okf/` knowledge bundle is present, read `okf/index.md` and `okf/*/index.md` first, then read only the specific leaf concept files (`okf/capabilities/*.md`, `okf/tables/*.md`, `okf/reports/*.md`) relevant to this release. In `plan.md`, explicitly link only the 1–2 relevant `okf/` leaf files under each `Slice [N]` so downstream `engineer` subagents never have to load the entire `okf/` directory.
 *   **Large Static Assets (>200 lines):** If the release incorporates an existing schema, migration, or seed file exceeding 200 lines, specify in the task steps that the Engineer must copy or transform it via shell tools (`cp`, `sed`, `python3`) rather than re-emitting the entire file through file-writing tool payloads.
 *   Answer internally: Which exact files change? What architectural pattern must be followed? Which existing tests break or need updating? Which sister modules, models, or tables share the pattern being changed?
 *   **No Guessing:** If unsure about behavior or impact, investigate until you have empirical evidence. Do not rely on file names alone.
@@ -78,9 +78,9 @@ Create `plans/active_releases/{release_version}/plan.md` with this structure:
 - **Test:** `[canonical test command from project governance]`
 
 ## 🏛️ Governance Mandates
-| Mandate | Source Document | Addressed in Task |
+| Mandate | Source Document | Addressed in Slice |
 | :--- | :--- | :--- |
-| [e.g., user guide must be updated in the same change] | [governance file and section] | Task [X.Y] |
+| [e.g., user guide must be updated in the same change] | [governance file and section] | Slice [N] |
 
 ## 🧭 Decisions & Alternatives
 | Decision | Chosen | Alternatives Rejected (and why) | Settled by |
@@ -89,42 +89,43 @@ Create `plans/active_releases/{release_version}/plan.md` with this structure:
 
 ## 📋 Requirements Traceability Matrix (RTM)
 *Every spec ID and every governance mandate appears here. No orphans.*
-| Requirement ID | Summary | Addressed in Task(s) | Verification (exact test or check) |
+| Requirement ID | Summary | Addressed in Slice | Verification (exact test or check) |
 | :--- | :--- | :--- | :--- |
-| INV-01 | [short] | Task 1.A | `tests/path/test_x.ext::test_name` |
-| AC-01 | [short] | Task 1.A, 2.A | `tests/path/test_y.ext::test_name` |
-| EC-01 | [short] | Task 2.B | `tests/path/test_z.ext::test_name` |
-| C-01 | [short] | All tasks | [static check, e.g., grep for forbidden import] |
-| GOV-01 | [short] | Task 3.A | [artifact updated, e.g., docs page and index entry] |
+| INV-01 | [short] | Slice 1 | `tests/path/test_x.ext::test_name` |
+| AC-01 | [short] | Slice 1 | `tests/path/test_y.ext::test_name` (`*ServiceTest`, `*IntegrationTest`, UI `*.test.*`) |
+| EC-01 | [short] | Slice 2 | `tests/path/test_z.ext::test_name` |
+| C-01 | [short] | All slices | [static check, e.g., grep for forbidden import] |
+| GOV-01 | [short] | Slice N | [artifact updated, e.g., docs page and index entry] |
 
-## 📋 Task Execution (Parallel Groups)
-*Tasks within a group MUST be independent (no shared files). Group N+1 cannot start until Group N passes audit.*
+## 📋 Vertical Slice Execution Plan (Strictly 1 E2E Slice at a Time)
+*Each slice is ONE atomic end-to-end user capability cutting across Persistence $\rightarrow$ Domain Service $\rightarrow$ API Endpoint $\rightarrow$ Client UI View + Navigation $\rightarrow$ Tests. Horizontal layers ("Backend only" or "UI only") and multi-capability batches are strictly forbidden. `Slice N+1` cannot start until `Slice N` passes `audit_code` and is committed.*
 
-### Group 1 (Parallel Execution - Independent Tasks)
-- [ ] Task 1.A: [Name - target file(s)] — satisfies [IDs]
-- [ ] Task 1.B: [Name - target file(s)] — satisfies [IDs]
+- [ ] **Slice 1 (Walking Skeleton + First E2E Capability):** [Single Capability Name — DB $\rightarrow$ Adapter $\rightarrow$ Service $\rightarrow$ API $\rightarrow$ UI View + Shell Nav] — satisfies [IDs]
+- [ ] **Slice 2:** [Single Capability Name — DB $\rightarrow$ Adapter $\rightarrow$ Service $\rightarrow$ API $\rightarrow$ UI View + Shell Nav] — satisfies [IDs]
+- [ ] **Slice N:** [Single Capability Name — DB $\rightarrow$ Adapter $\rightarrow$ Service $\rightarrow$ API $\rightarrow$ UI View + Shell Nav] — satisfies [IDs]
 
-### Group 2 (Depends on Group 1)
-- [ ] Task 2.A: [Name - target file(s)] — satisfies [IDs]
-
-## 📝 Step-by-Step Implementation Details
-*Be concrete: exact paths, signatures, schemas, and structural snippets.*
+## 📝 Step-by-Step Vertical-Slice TDD Details
+*Be concrete: exact paths, signatures, schemas, API routes, UI components, and structural snippets for each single vertical slice.*
 
 ### Prerequisites
-[Setup or dependencies]
+[Toolchain setup or dependencies]
 
-#### Task [X].[Y]
-1.  **Step 1 (RED — Unit Test Harness):**
-    *   *Target File:* `tests/path/to/test.ext`
-    *   *Test Cases:* [Explicit assertions, one per RTM row this task satisfies]
-    *   *Red Gate:* Run `[exact test command]`, confirm the new test fails (`RED`), and record the failure summary in `plan.md` before writing production code.
-2.  **Step 2 (GREEN — Implementation):**
-    *   *Target File:* `<source-dir>/path/to/file.ext`
-    *   *Exact Change:* [Signatures, data shapes, control flow]
-3.  **Step 3 (Verification & Refactor):**
-    *   *Action:* Run `[exact test command]` and confirm the named tests pass (`GREEN`).
+#### Slice [N]: [Single End-to-End Capability Name]
+*   **Scoped OKF / Spec References:** [1–2 exact `okf/` leaf files and `spec.md` IDs]
+1.  **Step 1 (RED — End-to-End Failing Tests for Slice [N]):**
+    *   *Backend Isolated Unit Test:* `tests/path/to/*ServiceTest.ext` — [Explicit domain service assertions with mocked persistence adapter]
+    *   *Backend Integration Test:* `tests/path/to/*IntegrationTest.ext` — [Real DB persistence + HTTP endpoint + `401`/`403`/`200` security assertions]
+    *   *Client UI Behavioral Test:* `<ui-root>/src/path/to/*.test.ext` — [Assertions for domain data rendering and user-triggered API calls to the real route]
+    *   *Red Gate:* Run `[exact backend & UI test commands]`, confirm the new tests fail (`RED`), and record the failure summary in the plan before writing production code for Slice [N].
+2.  **Step 2 (GREEN — End-to-End Vertical Slice Implementation for Slice [N]):**
+    *   *Persistence Layer:* `<backend-dir>/path/to/Repository.ext` (and schema migration if Slice 1) — [Exact SQL / 100% column mappings]
+    *   *Domain Service Layer:* `<backend-dir>/path/to/Service.ext` — [Invariants, computations, normalization, role checks]
+    *   *API Transport Layer:* `<backend-dir>/path/to/Controller.ext` — [Route, request/response DTOs]
+    *   *Client UI Layer & Navigation:* `<ui-root>/src/path/to/View.ext` + root navigation shell link — [Interactive filters, tables, forms wired to the exact API route]
+3.  **Step 3 (REFACTOR & VERIFY — Slice [N] Complete):**
+    *   *Action:* Run `[exact backend & UI build/test commands]`, confirm all tests pass (`GREEN`), and refactor cleanly within Slice [N]'s files while keeping the suite green.
 
-[...repeat for all tasks...]
+[...repeat for each single-capability Slice...]
 
 ### 📦 Data & Asset Contracts
 *Required for any new static data, lookup table, model file, fixture, or configuration.*
@@ -140,21 +141,22 @@ Create `plans/active_releases/{release_version}/plan.md` with this structure:
 *   [Additional machine-checkable done conditions]
 
 ## 🚧 Blockers
-*Engineers append here when blocked. Format: `Task X.Y — [blocker] — [proposed resolution] — [needs: Architect | Council]`.*
+*Engineers append here when blocked. Format: `Slice N — [blocker] — [proposed resolution] — [needs: Architect | Council]`.*
 ```
 
 ### Step 4: Revision (when dispatched with an audit report or blocker)
-*   **Design audit report:** Address every finding tagged **PLAN**. If a finding reveals a spec defect, say so in the plan's Decisions section and stop; the Supervisor will route it to the Product Owner. Keep task numbering stable; add new tasks rather than renumbering.
-*   **Spec revised by the Product Owner:** Reconcile the RTM against the new spec IDs and add or amend tasks accordingly.
-*   **Code audit or Engineer blocker:** Revise only the affected tasks and their RTM rows. Record what changed and why under Decisions.
+*   **Design audit report:** Address every finding tagged **PLAN**. If a finding reveals a spec defect, say so in the plan's Decisions section and stop; the Supervisor will route it to the Product Owner. Keep slice numbering stable; add new slices rather than renumbering.
+*   **Spec revised by the Product Owner:** Reconcile the RTM against the new spec IDs and add or amend slices accordingly.
+*   **Code audit or Engineer blocker:** Revise only the affected slice and its RTM rows. Record what changed and why under Decisions.
 
 ## 🚫 CONSTRAINTS
 1.  **READ-ONLY CODEBASE:** Never edit, create, or delete source files. Write only under `plans/`.
 2.  **MANDATORY OUTPUT:** Always produce `plan.md` with a complete RTM.
 3.  **NO GUESSING:** Investigate until you have evidence.
-4.  **GOVERNANCE FIRST:** Step 0 is not optional. Every applicable repository mandate becomes a task.
-5.  **ANTI-HAND-WAVING:** Never write vague tasks such as "use a cached list", "handle errors", or "add validation". For any new data, asset, or external model, specify exact path, format, schema, source, size budget, and load mechanism in the Data & Asset Contracts table.
+4.  **GOVERNANCE FIRST:** Step 0 is not optional. Every applicable repository mandate becomes a slice step.
+5.  **ANTI-HAND-WAVING:** Never write vague steps such as "use a cached list", "handle errors", or "add validation". For any new data, asset, or external model, specify exact path, format, schema, source, size budget, and load mechanism in the Data & Asset Contracts table.
 6.  **SCHEMA & MODEL SYMMETRY:** When adding a field, column, or behavior to one entity, evaluate its sister entities for the same change and follow the repository's indexing, tenancy, and migration conventions discovered in Step 0. Document the symmetry decision either way.
 7.  **EXPLICIT VERIFICATION:** Never write "ensure it works". Write the exact command and the exact tests that must pass.
 8.  **NO GIT OPERATIONS:** You never commit, tag, or push. The Supervisor alone does that.
 9.  **NO INTERACTIVE BLOCKING:** If you encounter an ambiguity that requires multi-perspective deliberation, record it under Decisions and return; the Supervisor will convene the **LLM Council** to settle it in `answers.md`.
+10. **STRICT 1-CAPABILITY END-TO-END VERTICAL SLICES:** Never split a capability horizontally into a "Backend task/slice" and a "UI task/slice", and never bundle multiple user capabilities into a single slice. Every `Slice N` must go end-to-end (DB $\rightarrow$ Adapter $\rightarrow$ Service $\rightarrow$ API $\rightarrow$ UI View + Navigation $\rightarrow$ Tests) for one single capability.

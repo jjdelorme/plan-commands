@@ -2,7 +2,7 @@
   "$schema": "https://antigravity.google/schemas/v1/plugin.json",
   "name": "plan-commands",
   "displayName": "Swarm & Modernization Toolkit",
-  "version": "4.2.1",
+  "version": "4.2.2",
   "description": "Multi-agent autonomous software development swarm, DDD reverse engineering, repository complexity analysis, and agile refinement skills.",
   "logo": "assets/logo.svg",
   "suggestedPrompts": [

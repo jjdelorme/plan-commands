@@ -69,9 +69,9 @@ The swarm manages the software development lifecycle with a **Plan -> Audit -> A
 ### The Roles
 *   **Supervisor (`swarm` skill)**: The Project Manager & Council Chairman. Enforces the state machine, uses `ask_question` at most once up front for user-intent ambiguity, convenes the **LLM Council** (`invoke_subagent`) to debate technical trade-offs and blockers, and autonomously runs `git commit` and `git tag` after passing audits.
 *   **Product Owner (`product_owner`)**: The **Guardian of User Intent & the Spec**. Captures your strategic intent and non-negotiable guardrails (e.g., *"clean-room rebuild using only `okf/*`, zero access to legacy code, target architecture and stack constraints"*), decomposes `okf/` capabilities into a sequenced release roadmap (`plans/00-ROADMAP.md`), and writes each release's traceable `spec.md` (`INV-`, `AC-`, `EC-`, `C-`).
-*   **Architect (`architect`)**: The Planner. Discovers repository governance rules, progressively loads only the relevant `okf/` leaf files, and writes a concrete `plan.md` whose Requirements Traceability Matrix maps every spec ID to a task and a named test.
-*   **Engineer (`engineer`)**: The Builder. Implements one task at a time via strict Red-Green-Refactor TDD and records blockers in the plan instead of guessing.
-*   **Auditor (`auditor`)**: The Gatekeeper, in two modes. `audit_design` checks the spec against the research/OKF and the plan against the spec and governance before the Design Gate. `audit_code` walks the traceability matrix, builds, runs the tests, verifies TDD Red-Gate evidence, and hunts for shortcuts before anything is committed.
+*   **Architect (`architect`)**: The Planner. Discovers repository governance rules, progressively loads only the relevant `okf/` leaf files, and writes a concrete `plan.md` whose Requirements Traceability Matrix maps every spec ID to an atomic, single-capability end-to-end vertical slice (`Slice 1` .. `Slice N`) and named tests.
+*   **Engineer (`engineer`)**: The Builder. Implements **strictly one end-to-end vertical slice at a time** (DB $\rightarrow$ Service $\rightarrow$ API $\rightarrow$ UI $\rightarrow$ Tests) via Red-Green-Refactor TDD and records blockers in the plan instead of guessing.
+*   **Auditor (`auditor`)**: The Gatekeeper, in two modes. `audit_design` checks the spec against the research/OKF and the plan against the spec and governance before the Design Gate (rejecting horizontal layer splits or multi-capability batches). `audit_code` walks the traceability matrix, builds, runs the tests, verifies TDD Red-Gate evidence, and hunts for shortcuts before anything is committed.
 *   **Reverse Engineer (`reverse_engineer`)**: The DDD Domain Analyst. Deconstructs legacy applications, data stores, schemas, and screenshots into stack-agnostic Open Knowledge Format (`okf/`) bundles verified by an independent zero-context reviewer.
 
 ### 🔄 Protocol Lifecycle
@@ -83,13 +83,13 @@ graph TD
         Questions{"Ambiguities?"}
         AskUser["ask_question Tool (Once Up Front)"]
         Council1["LLM Council: Multi-Subagent Debate"]
-        Architect["Architect: plan.md + RTM"]
+        Architect["Architect: E2E Vertical-Slice plan.md + RTM"]
         DesignAudit["Auditor: Design Audit"]
         Review{"Design Gate Approval"}
     end
 
-    subgraph "Autonomous Construction & Verification"
-        Engineer["Engineer: Implement (Parallel TDD)"]
+    subgraph "Autonomous Construction & Verification (1 Slice at a Time)"
+        Engineer["Engineer: Implement 1 E2E Vertical Slice (Red -> Green -> Refactor)"]
         Council2["LLM Council: Blocker & Impasse Resolution"]
         CodeAudit["Auditor: Code Audit"]
     end
