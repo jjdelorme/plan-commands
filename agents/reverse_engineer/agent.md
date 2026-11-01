@@ -13,8 +13,8 @@ tools:
   - invoke_subagent
   - send_message
   - start_subagent
-max_turns: 50
-timeout_mins: 15
+max_turns: 100
+timeout_mins: 60
 mainAgent: true
 subagent: true
 ---
