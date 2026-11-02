@@ -1,14 +1,14 @@
 {
   "$schema": "https://antigravity.google/schemas/v1/plugin.json",
   "name": "plan-commands",
-  "displayName": "Swarm & Modernization Toolkit",
-  "version": "4.3.0",
-  "description": "Multi-agent autonomous software development swarm, DDD reverse engineering, repository complexity analysis, and agile refinement skills.",
+  "displayName": "ASDLC & Modernization Toolkit",
+  "version": "4.4.0",
+  "description": "Agentic SDLC orchestrator (asdlc), DDD/OKF reverse engineering, repository complexity analysis, and agile user story skills.",
   "logo": "assets/logo.svg",
   "suggestedPrompts": [
-    "Use the swarm skill to plan and implement a new feature",
-    "Analyze this repository's scope and complexity using repo-stats",
-    "Use create-user-stories to generate INVEST user stories from this codebase"
+    "Use the asdlc skill to plan and implement a new feature",
+    "Use the reverse_engineer agent to deconstruct this application into an okf/ bundle",
+    "Analyze this repository's scope and complexity using repo-stats"
   ],
   "author": {
     "name": "J. Jason De Lorme",
@@ -18,12 +18,12 @@
   "repository": "https://github.com/jjdelorme/plan-commands",
   "license": "Apache-2.0",
   "keywords": [
-    "swarm",
+    "asdlc",
     "planning",
     "multi-agent",
     "tdd",
     "modernization",
-    "agile",
+    "okf",
     "ddd"
   ]
 }

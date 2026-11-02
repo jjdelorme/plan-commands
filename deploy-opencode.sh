@@ -107,14 +107,19 @@ skills_dst = target_dir / "skills"
 TOOL_REPLACEMENTS = [
     (r"\brun_command\b", "bash"),
     (r"\bview_file\b", "read"),
+    (r"\bread_file\b", "read"),
     (r"\bwrite_to_file\b", "write"),
+    (r"\bwrite_file\b", "write"),
     (r"\breplace_file_content\b", "edit"),
+    (r"\bedit_file\b", "edit"),
     (r"\bgrep_search\b", "grep"),
     (r"\bfind_by_name\b", "glob"),
     (r"\blist_dir\b", "read"),
+    (r"\bmanage_task\b", "bash"),
     (r"\bask_question\b", "question"),
     (r"\binvoke_subagent\b", "task"),
     (r"\bdefine_subagent\b", "task"),
+    (r"\bmanage_subagents\b", "task"),
     (r"\bstart_subagent\b", "task"),
 ]
 
@@ -162,6 +167,8 @@ def parse_frontmatter(text: str):
             if key == "tools":
                 in_tools = True
             else:
+                if len(val) >= 2 and val[0] == val[-1] and val[0] in ('"', "'"):
+                    val = val[1:-1]
                 meta[key] = val
     meta["tools"] = tools
     return meta, body
