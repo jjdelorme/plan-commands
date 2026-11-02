@@ -67,44 +67,52 @@ The agent takes on the **Supervisor** role defined by the `swarm` skill and driv
 The swarm manages the software development lifecycle with a **Plan -> Audit -> Act -> Verify** state machine. Every hand-off between roles is a file under `plans/`, so the process is inspectable and resumable.
 
 ### The Roles
-*   **Supervisor (`swarm` skill)**: The Project Manager & Council Chairman. Enforces the state machine, uses `ask_question` at most once up front for user-intent ambiguity, convenes the **LLM Council** (`invoke_subagent`) to debate technical trade-offs and blockers, and autonomously runs `git commit` and `git tag` after passing audits.
-*   **Product Owner (`product_owner`)**: The **Guardian of User Intent & the Spec**. Captures your strategic intent and non-negotiable guardrails (e.g., *"clean-room rebuild using only `okf/*`, zero access to legacy code, target architecture and stack constraints"*), decomposes `okf/` capabilities into a sequenced release roadmap (`plans/00-ROADMAP.md`), and writes each release's traceable `spec.md` (`INV-`, `AC-`, `EC-`, `C-`).
-*   **Architect (`architect`)**: The Planner. Discovers repository governance rules, progressively loads only the relevant `okf/` leaf files, and writes a concrete `plan.md` whose Requirements Traceability Matrix maps every spec ID to an atomic, single-capability end-to-end vertical slice (`Slice 1` .. `Slice N`) and named tests.
-*   **Engineer (`engineer`)**: The Builder. Implements **strictly one end-to-end vertical slice at a time** (DB $\rightarrow$ Service $\rightarrow$ API $\rightarrow$ UI $\rightarrow$ Tests) via Red-Green-Refactor TDD and records blockers in the plan instead of guessing.
-*   **Auditor (`auditor`)**: The Gatekeeper, in two modes. `audit_design` checks the spec against the research/OKF and the plan against the spec and governance before the Design Gate (rejecting horizontal layer splits or multi-capability batches). `audit_code` walks the traceability matrix, builds, runs the tests, verifies TDD Red-Gate evidence, and hunts for shortcuts before anything is committed.
+*   **Supervisor (`swarm` skill)**: The Project Manager & Council Chairman. Enforces the state machine, uses `ask_question` at most once up front for user-intent ambiguity, convenes the **LLM Council** (`invoke_subagent`) to debate technical trade-offs and blockers, and autonomously runs `git commit` after each verified slice and `git tag` upon release completion.
+*   **Product Owner (`product_owner`)**: The **Guardian of User Intent & the Spec**. Captures your strategic intent and non-negotiable guardrails (e.g., *"clean-room rebuild using only `okf/*`, zero access to legacy code, target architecture and stack constraints"*), decomposes `okf/` capabilities into a sequenced release roadmap of atomic vertical slices (`plans/00-ROADMAP.md`), and writes each vertical slice's dedicated `context.md` and traceable `spec.md` (`INV-`, `AC-`, `EC-`, `C-`) inside `plans/active_releases/{release_version}/slice-{NN}-{slug}/`.
+*   **Architect (`architect`)**: The Planner. Discovers repository governance rules, inspects the actual codebase left by prior slices, loads only the 1–2 relevant `okf/` leaf files, and writes a concrete per-slice `plan.md` (`plans/active_releases/{release_version}/slice-{NN}-{slug}/plan.md`) whose Requirements Traceability Matrix maps every spec ID for that single capability to end-to-end TDD tasks and named tests.
+*   **Engineer (`engineer`)**: The Builder. Implements **strictly one end-to-end vertical slice at a time** (`slice-{NN}-{slug}`) across DB $\rightarrow$ Service $\rightarrow$ API $\rightarrow$ UI $\rightarrow$ Tests via Red-Green-Refactor TDD and records blockers in `slice-{NN}-{slug}/plan.md` instead of guessing.
+*   **Auditor (`auditor`)**: The Gatekeeper, across three adversarial gates per slice. `audit_spec` checks `plans/00-ROADMAP.md` (100% `okf/index.md` coverage and single-capability vertical-slice decomposition) and `slice-{NN}-{slug}/{context.md, spec.md}` against `okf/` before the Architect runs. `audit_plan` checks `slice-{NN}-{slug}/plan.md` against `spec.md` and repository governance before the Engineer runs (rejecting horizontal layer splits or multi-capability batches). `audit_code` walks the slice's traceability matrix, builds, runs the tests, verifies TDD Red-Gate evidence, and hunts for shortcuts before the slice is committed.
 *   **Reverse Engineer (`reverse_engineer`)**: The DDD Domain Analyst. Deconstructs legacy applications, data stores, schemas, and screenshots into stack-agnostic Open Knowledge Format (`okf/`) bundles verified by an independent zero-context reviewer.
 
 ### 🔄 Protocol Lifecycle
 
 ```mermaid
 graph TD
-    subgraph "Discovery & Design (Up-Front Alignment)"
-        PO["Product Owner: spec.md"]
+    subgraph "Up-Front Release Alignment (Once per Release)"
+        PORoadmap["Product Owner: 00-ROADMAP.md (Slices 01..NN)"]
         Questions{"Ambiguities?"}
         AskUser["ask_question Tool (Once Up Front)"]
         Council1["LLM Council: Multi-Subagent Debate"]
-        Architect["Architect: E2E Vertical-Slice plan.md + RTM"]
-        DesignAudit["Auditor: Design Audit"]
+    end
+
+    subgraph "Just-in-Time Per-Slice Loop (1 Slice at a Time: slice-01 -> ... -> slice-NN)"
+        POSlice["Product Owner: slice-{NN}/context.md + slice-{NN}/spec.md"]
+        SpecAudit["Auditor (audit_spec): Roadmap + Slice Spec Audit"]
+        Architect["Architect: slice-{NN}/plan.md + RTM"]
+        PlanAudit["Auditor (audit_plan): Slice Plan & Governance Audit"]
         Review{"Design Gate Approval"}
-    end
-
-    subgraph "Autonomous Construction & Verification (1 Slice at a Time)"
-        Engineer["Engineer: Implement 1 E2E Vertical Slice (Red -> Green -> Refactor)"]
+        Engineer["Engineer: Implement slice-{NN} E2E (Red -> Green -> Refactor)"]
         Council2["LLM Council: Blocker & Impasse Resolution"]
-        CodeAudit["Auditor: Code Audit"]
+        CodeAudit["Auditor (audit_code): Slice Code Audit"]
+        Commit(["Autonomous Git Commit (slice-{NN})"])
     end
 
-    Start(["User Request"]) --> PO
-    PO --> Questions
-    Questions -- "User intent (max 1x)" --> AskUser --> PO
-    Questions -- "Technical / domain trade-off" --> Council1 --> PO
-    Questions -- "No" --> Architect
-    Architect --> DesignAudit
+    Start(["User Request"]) --> PORoadmap
+    PORoadmap --> Questions
+    Questions -- "User intent (max 1x)" --> AskUser --> PORoadmap
+    Questions -- "Technical / domain trade-off" --> Council1 --> PORoadmap
+    Questions -- "No" --> POSlice
 
-    DesignAudit -- "Spec defect" --> PO
-    DesignAudit -- "Plan defect" --> Architect
-    DesignAudit -- "Impasse" --> Council1
-    DesignAudit -- "Pass" --> Review
+    POSlice --> SpecAudit
+    SpecAudit -- "Roadmap / Spec defect" --> POSlice
+    SpecAudit -- "Impasse" --> Council1
+    SpecAudit -- "Pass" --> Architect
+
+    Architect --> PlanAudit
+    PlanAudit -- "Plan defect" --> Architect
+    PlanAudit -- "Latent Spec defect" --> POSlice
+    PlanAudit -- "Impasse" --> Council1
+    PlanAudit -- "Pass" --> Review
 
     Review -- "Revise" --> Architect
     Review -- "Approve" --> Engineer
@@ -113,30 +121,38 @@ graph TD
     Engineer -- "Complete" --> CodeAudit
     CodeAudit -- "Code broken" --> Engineer
     CodeAudit -- "Plan wrong / Impasse" --> Council2
-    CodeAudit -- "Verified" --> Commit(["Autonomous Git Commit"])
+    CodeAudit -- "Verified" --> Commit
 
-    Commit --> CheckRelease{"Release Complete?"}
-    CheckRelease -- "No" --> Engineer
-    CheckRelease -- "Yes" --> Tag(["Autonomous Git Tag & Release"])
-    Tag --> PO
+    Commit --> CheckRelease{"More Slices in Release?"}
+    CheckRelease -- "Next Slice (slice-{NN+1})" --> POSlice
+    CheckRelease -- "All Slices Verified" --> Tag(["Autonomous Git Tag & Release"])
+    Tag --> PORoadmap
 ```
 
 Automated return loops are capped. When an audit cap or engineering blocker is reached, the Supervisor convenes the **LLM Council** (parallel subagents proposing, critiquing, and synthesizing consensus into `answers.md`) rather than looping or halting for manual intervention.
 
 ### Workspace Layout
 ```text
-okf/                                 # Optional: Stack-agnostic DDD knowledge bundle (Reverse Engineer)
-  index.md                           # Tier 1 root architectural index & capability catalog
+okf/                                       # Optional: Stack-agnostic DDD knowledge bundle (Reverse Engineer)
+  index.md                                 # Tier 1 root architectural index & capability catalog
   domain/ | aggregates/ | capabilities/ | reports/ | data-structures/ | tables/
 plans/
-  00-ROADMAP.md                      # Master roadmap, user intent guardrails & release scheme (Product Owner)
-  research/                          # Context reports before a release is formed
-  active_releases/{release_version}/ # Sole organizing unit for delivery & verification
-    context.md                       # Research & scoped OKF links the spec must stay faithful to
-    questions.md / answers.md        # Discovery questions and settled decisions (User & LLM Council)
-    spec.md                          # Contract with INV-/AC-/EC-/C- IDs (including clean-room constraints)
-    plan.md                          # Tasks, RTM, governance mandates, blockers
-  audit/                             # Auditor reports (git-ignored)
+  00-ROADMAP.md                            # Master roadmap, user intent guardrails & ordered slices (Product Owner)
+  research/                                # Pre-flight research reports
+  active_releases/{release_version}/       # Release container
+    questions.md / answers.md              # Release-level discovery questions and settled decisions (User & LLM Council)
+    slice-01-{slug}/                       # Atomic 1-capability E2E vertical slice (Walking Skeleton + 1st capability)
+      context.md                           # Slice-scoped research & 1–2 OKF links (<= 150 lines)
+      spec.md                              # Slice-scoped contract with INV-/AC-/EC-/C- IDs (<= 250 lines)
+      plan.md                              # Slice-scoped E2E TDD tasks, RTM, verification commands, blockers (<= 200 lines)
+    slice-02-{slug}/                       # Next atomic 1-capability E2E vertical slice
+      context.md
+      spec.md
+      plan.md
+  audit/                                   # Per-slice Auditor reports (git-ignored)
+    SPEC_AUDIT_{release_version}_slice-{NN}.md
+    PLAN_AUDIT_{release_version}_slice-{NN}.md
+    AUDIT_{release_version}_slice-{NN}.md
 ```
 
 ---
@@ -170,7 +186,7 @@ flowchart LR
    Copy `okf/` into a fresh target workspace with **no access to the original source code**, and invoke `/swarm` with your target stack and architectural intent:
    > `/swarm` Build a new application from scratch on [your target stack] using strictly the `@okf/*` specification (clean-room: zero access to legacy code). Iterate through all releases in `00-ROADMAP.md` until 100% of OKF capabilities pass end-to-end.
 
-   * **How `product_owner` enforces your intent:** The `product_owner` reads the Tier 1 `okf/index.md` catalog, maps 100% of capabilities and reports across sequenced releases in `plans/00-ROADMAP.md`, and encodes your clean-room and stack mandates as traceable `C-` constraints in every release's `spec.md`.
+   * **How `product_owner` enforces your intent:** The `product_owner` reads the Tier 1 `okf/index.md` catalog, maps 100% of capabilities and reports across sequenced releases and vertical slices in `plans/00-ROADMAP.md`, and encodes your clean-room and stack mandates as traceable `C-` constraints in every slice's `spec.md`.
    * **How ambiguities are settled:** If any product/scope intent is ambiguous up front, the Supervisor calls `ask_question` once; all technical and architectural trade-offs across the build are debated and settled autonomously by the **LLM Council** (`[Settled by: LLM Council]` in `answers.md`).
 
 ### Extending the Swarm (Optional)
