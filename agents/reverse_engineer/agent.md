@@ -63,7 +63,7 @@ Follow the specification's current version and conventions. If running offline, 
    Capture **100% of business behavior, formulas, validations, state transitions, data schemas, and external boundary contracts**, and **0% of internal framework boilerplate**. Translate implementation details into DDD primitives (**Bounded Contexts**, **Aggregates**, **Entities**, **Value Objects**, **Domain Invariants**) and isolate external dependencies behind **Anti-Corruption Layers (ACLs)** or **Open Host Services / Published Languages**.
 3. **Two-Tier Progressive Disclosure:**
    * **Tier 1 (`okf/index.md` and optional category `index.md` files):** Architectural summary and catalog links so downstream planners can map the full system without loading every concept file at once.
-   * **Tier 2 (Self-Contained Leaf Concept Files):** Each capability, aggregate, schema, or contract lives in its own `.md` file with complete rules, schemas, and scenarios so builders load only the 1-2 files needed for a task.
+   * **Tier 2 (Self-Contained Leaf Concept Files):** Each capability, aggregate, schema, or contract lives in its own `.md` file with complete rules, schemas, and scenarios so builders load only the capability file and the concept files it links to.
 4. **Cross-Artifact Reconciliation:**
    When multiple inputs exist (source code, schemas, migrations, UI screenshots), cross-check them and resolve discrepancies explicitly. Inspect visual assets directly rather than trusting filenames, separating functional UI contracts (fields, controls, validations, actions) from cosmetic styling.
 

@@ -69,10 +69,10 @@ The agent acts as the **ASDLC Supervisor** and drives the **Spec -> Plan -> TDD 
 
 ### Roles
 * **Supervisor (`asdlc` skill)**: Enforces the state machine across file-path handoffs, convenes the 2-agent Council (`auditor` + `architect`) on trade-offs or blockers, and owns `git commit` per Slice and archiving upon Goal completion.
-* **Product Owner (`product_owner`)**: Captures user guardrails, maps 100% of Goal scope or `okf/index.md` capabilities into ordered vertical Slices in `plans/active/{goal}/backlog.md`, and writes scoped `context.md` and traceable `spec.md` (`INV-`, `AC-`, `EC-`, `C-`) per Slice.
-* **Architect (`architect`)**: Inspects repository governance and the live codebase left by prior Slices, loads only the 1-2 linked `okf/` concept files, and writes `plan.md` with explicit Build, Unit/Integration, and Live E2E verification commands, a 100% Requirements Traceability Matrix (RTM), and TDD Tasks.
+* **Product Owner (`product_owner`)**: Captures user guardrails (WHAT & WHY), maps 100% of Goal scope or `okf/index.md` capabilities into ordered vertical Slices in `plans/active/{goal}/backlog.md`, and writes a functional `spec.md` (`INV-`, `AC-`, `EC-`, `C-`) per Slice.
+* **Architect (`architect`)**: Owns technical design (HOW & WHERE) by inspecting repository engineering docs and live codebase seams, reading the `okf/` files referenced in `spec.md`, and writing `plan.md` with Build, Unit/Integration, and Live E2E verification commands, an ID-to-test Requirements Traceability Matrix (RTM), and TDD Tasks.
 * **Engineer (`engineer`)**: Implements **strictly one vertical Slice at a time** (`slice-{NN}-{slug}`) end-to-end across every layer required by that capability (UI, API/webhook, CLI, or batch/scheduled job -> domain -> persistence -> unit, integration, and live E2E tests) by completing `Red -> Green -> Refactor` Tasks.
-* **Auditor (`auditor`)**: Enforces three independent gates per Slice: `audit_spec` (Backlog completeness and zero lossy compression), `audit_plan` (RTM coverage, governance, and single-capability verticality), and `audit_code` (live build, unit/integration, and E2E test execution plus anti-shortcut checks).
+* **Auditor (`auditor`)**: Enforces three independent gates per Slice: `audit_spec` (Backlog and rule coverage), `audit_plan` (RTM coverage, governance, and single-capability verticality), and `audit_code` (live build, unit/integration, and E2E test execution plus anti-shortcut checks).
 * **Reverse Engineer (`reverse_engineer`)**: Deconstructs legacy applications, schemas, and visual assets into stack-agnostic Open Knowledge Format (`okf/`) bundles verified by an independent zero-context reviewer subagent.
 
 ### Protocol Lifecycle
@@ -82,8 +82,8 @@ graph TD
     Start(["User Goal"]) --> POBacklog["Phase 1: product_owner (backlog.md)"]
     POBacklog --> Questions{"Ambiguities?"}
     Questions -- "User Intent (Max 1x)" --> AskUser["Clarify with User"] --> POBacklog
-    Questions -- "Technical Trade-off" --> Council["2-Agent Council Tie-Breaker"] --> POBacklog
-    Questions -- "Ready" --> POSlice["Phase 2A: product_owner (slice context.md + spec.md)"]
+    Questions -- "Technical Trade-off" --> Council["2-Agent Council (writes answers.md & resumes)"]
+    Questions -- "Ready" --> POSlice["Phase 2A: product_owner (slice spec.md)"]
     POSlice --> SpecAudit["Phase 2B: auditor (audit_spec)"]
     SpecAudit -- "BACKLOG / SPEC defect" --> POSlice
     SpecAudit -- "Impasse" --> Council
@@ -93,10 +93,11 @@ graph TD
     PlanAudit -- "SPEC defect" --> POSlice
     PlanAudit -- "Impasse" --> Council
     PlanAudit -- "PASS" --> Engineer["Phase 2E: engineer (Single-Slice TDD Tasks)"]
-    Engineer -- "Blocker" --> Council --> Architect
+    Engineer -- "Blocker" --> Council
     Engineer -- "Complete" --> CodeAudit["Phase 2F: auditor (audit_code)"]
     CodeAudit -- "CODE defect" --> Engineer
-    CodeAudit -- "PLAN / Impasse" --> Council
+    CodeAudit -- "PLAN defect" --> Architect
+    CodeAudit -- "Impasse" --> Council
     CodeAudit -- "PASS" --> Commit(["Phase 2G: Git Commit slice-{NN}"])
     Commit --> MoreSlices{"More Slices?"}
     MoreSlices -- "Next Slice" --> POSlice
@@ -111,14 +112,12 @@ okf/                                       # Optional: Stack-agnostic DDD knowle
   <domain-subfolders>/<concept>.md         # Tier 2 self-contained concept files (domains, aggregates, capabilities, schemas)
 plans/
   active/{goal}/                           # Self-contained active Goal directory
-    backlog.md                             # Goal guardrails, verified toolchain & [ ] -> [x] Slice checklist
+    backlog.md                             # Goal guardrails, target stack & [ ] -> [x] Slice checklist
     questions.md / answers.md              # Up-front user clarifications & [Settled by: Council] decisions
     slice-01-{slug}/                       # Walking Skeleton + 1st end-to-end capability
-      context.md                           # Slice toolchain, seams & 1-2 okf/ links (<= 150 lines)
-      spec.md                              # Slice contract with INV-/AC-/EC-/C- IDs (<= 250 lines)
-      plan.md                              # Verification commands, RTM, TDD Tasks & blockers (<= 200 lines)
+      spec.md                              # Functional Slice contract: okf/ refs & INV-/AC-/EC-/C- IDs (<= 300 lines)
+      plan.md                              # Codebase seams, verification commands, ID-to-test RTM & Tasks (<= 200 lines)
     slice-02-{slug}/                       # Next single-capability vertical Slice
-      context.md
       spec.md
       plan.md
   archive/{goal}/                          # Completed Goals moved here as a unit at Phase 3
