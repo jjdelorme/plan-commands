@@ -22,7 +22,7 @@ Every **Goal** lives in `plans/active/{goal}/`, decomposed into a **Backlog** (`
 | `.../slice-{NN}-{slug}/plan.md` | `architect` | Technical TDD plan (`<= 200` lines): codebase seams, Verification Commands, ID-to-test RTM, and Tasks |
 | `plans/audit/*_{goal}_slice-{NN}.md` | `auditor` | `SPEC_AUDIT`, `PLAN_AUDIT`, and `AUDIT` verdicts (git-ignored) |
 
-### Traceability IDs (`spec.md` -> `plan.md` RTM)
+### Traceability IDs & Requirements Traceability Matrix (RTM: `spec.md` -> `plan.md`)
 
 | Prefix | Meaning | Typical Verification |
 | :--- | :--- | :--- |
