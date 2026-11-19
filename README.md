@@ -107,7 +107,7 @@ graph TD
 ### Workspace Layout
 ```text
 okf/                                       # Optional: Stack-agnostic DDD knowledge bundle (reverse_engineer)
-  index.md                                 # Tier 1 progressive-disclosure catalog (okf_version: "0.2")
+  index.md                                 # Tier 1 progressive-disclosure catalog (okf_version: "0.3")
   log.md                                   # Chronological extraction & verification log
   <domain-subfolders>/<concept>.md         # Tier 2 self-contained concept files (domains, aggregates, capabilities, schemas)
 plans/

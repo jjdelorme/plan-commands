@@ -23,33 +23,35 @@ subagent: true
 
 ## OPEN KNOWLEDGE FORMAT (OKF) SPECIFICATION
 
-Authoritative Specification: `https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md`
+Authoritative Specification: `https://github.com/open-knowledge-format/open-knowledge-format/blob/main/SPEC.md`
 
 Before generating an `okf/` bundle, fetch and read the authoritative OKF specification:
 ```bash
-curl -fsSL "https://raw.githubusercontent.com/GoogleCloudPlatform/knowledge-catalog/main/okf/SPEC.md"
+curl -fsSL "https://raw.githubusercontent.com/open-knowledge-format/open-knowledge-format/main/SPEC.md"
 ```
-Follow the specification's current version and conventions. If running offline, apply these OKF v0.2 baseline rules:
+Follow the specification's current version and conventions. If running offline, apply these OKF v0.3 baseline rules:
 
 1. **Reserved Filenames:**
-   * `index.md`: Directory listing for progressive disclosure at `okf/index.md` (which may carry `okf_version: "0.2"` in frontmatter) and optionally inside subdirectories (no frontmatter).
-   * `log.md`: Chronological history of bundle updates (`YYYY-MM-DD` headings, newest first) at `okf/log.md`.
-   * All other `.md` files are **Concept Documents** (`kebab-case.md`).
+   * `index.md`: Directory listing for progressive disclosure at `okf/index.md` (which may carry `okf_version: "0.3"`, `title`, `description`, and `license` in frontmatter; preserve existing bundle-root frontmatter on regeneration) and optionally inside subdirectories (no frontmatter).
+   * `log.md`: Chronological history of bundle updates (`YYYY-MM-DD` headings, newest first, no frontmatter) at `okf/log.md`.
+   * All other `.md` files with frontmatter containing a non-empty `type` are **Concept Documents** (`kebab-case.md`). Non-`.md` files are **assets**.
 2. **Concept Document YAML Frontmatter (Required on Every Concept File):**
    ```yaml
    ---
-   type: <Concept Type>               # REQUIRED (e.g., Bounded Context, DDD Aggregate, Business Capability, Data Structure, Database Table)
+   type: <Concept Type>               # REQUIRED (e.g., Bounded Context, DDD Aggregate, Business Capability, Data Structure, Database Table, Attested Computation)
    title: <Human-readable title>
    description: <Single-sentence summary used in index.md>
    tags: [<tag1>, <tag2>]
-   status: stable                     # draft | stable | deprecated
-   generated: { by: reverse_engineer/1.0, at: <ISO-8601-UTC-timestamp> }
+   status: stable                     # draft | stable | deprecated (with optional superseded_by path)
+   generated: { by: reverse_engineer/1.0, at: "<RFC-3339-UTC-date-time>" }
    sources:
      - id: <short-citation-key>
-       resource: <path/to/source-file-or-schema>
+       resource: <URI-or-path-relative-to-this-file-or-/bundle-root-or-scope-descriptor>
        title: <Human-readable source description>
    ---
    ```
+   * Use YAML 1.2 core schema with no duplicate keys or custom tags; quote timestamps (`"YYYY-MM-DDTHH:MM:SSZ"`) and numeric/boolean-like values. Use `x-<producer>-<name>` for custom extension keys.
+   * **Path fields** (`resource`, `sources[].resource`, `computation`, `superseded_by`) without a leading `/` resolve **relative to the containing file's directory**; a leading `/` resolves from the bundle root (`okf/`). Values resolving outside `okf/` are treated as external references or scope descriptors.
 3. **Per-Claim Provenance Footnotes:**
    Attribute extracted domain rules, formulas, and persistence behaviors in the body to entries in `sources` using standard markdown footnotes (`[^short-citation-key]`).
 
@@ -90,18 +92,18 @@ Organize self-contained `kebab-case.md` concept files under `okf/` into subdirec
   * Functional interface contract (inputs, controls/parameters, outputs, sorting/filtering, actions; never leak internal spec numbering into UI labels).
   * Domain rules, validations, authorization gates, external failure handling, and persistence writes with `[^source]` footnotes.
   * Executable Gherkin (`Feature`, `Background`, `Scenario`, `Scenario Outline` with concrete `Examples:` data) covering happy paths, boundary values, validation rejections, external failures, and authorization checks.
-* **Schemas, Lookup Structures & Standalone Computations** (only as needed for the system): Exhaustive field/column definitions (types, nullability, defaults, keys, indexes, seed/lookup code maps) and any standalone parameterized queries or formulas.
+* **Schemas, Lookup Structures & Standalone Computations** (only as needed for the system): Exhaustive field/column definitions (types, nullability, defaults, keys, indexes, seed/lookup code maps) and any standalone parameterized queries or formulas (using `type: Attested Computation` with `runtime`, `parameters`, and a `# Computation` fenced code block or `computation:` path where applicable).
 
-Create `okf/index.md` (`okf_version: "0.2"`) with a system overview, a flat Mermaid `flowchart TD` diagram (with double-quoted node labels, e.g., `id["Node Label"]`), and relative markdown links to all subdirectories and concept files. Record the extraction in `okf/log.md`.
+Create `okf/index.md` (`okf_version: "0.3"`, `title`, `description`) with a system overview, a flat Mermaid `flowchart TD` diagram (with double-quoted node labels, e.g., `id["Node Label"]`), and relative markdown links to all subdirectories and concept files. Record the extraction in `okf/log.md` (no frontmatter).
 
 ### Step 4: Independent Zero-Context Verification Pass
 Before finishing, run an adversarial verification pass in a **separate, clean context window** by defining and invoking a read-only reviewer subagent (passing *only* the paths to the source artifacts and `okf/`, never your authoring summary):
 1. **Completeness:** Compare every screen, endpoint, CLI command, scheduled/batch job, stored procedure/query, schema table/column, and external contract in the source against `okf/`. Flag any omitted capability or rule.
 2. **Clean-Room Bar:** Flag any `"etc."` abbreviation, unmapped lookup code, or leaked framework boilerplate.
 3. **Gherkin & Reconciliation:** Confirm every capability has Gherkin scenarios (happy path, boundaries, errors, auth) and all referenced schemas/screenshots match the source artifacts.
-4. **OKF Conformance:** Confirm valid YAML frontmatter on every concept file and verify every relative link in `index.md` resolves on disk.
+4. **OKF v0.3 Conformance:** Confirm valid YAML 1.2 frontmatter (no duplicate keys, quoted RFC 3339 `date-time` timestamps) on every concept file, no frontmatter on `log.md` or subdirectory `index.md`, bundle-root `index.md` metadata preserved, and every relative or bundle-root (`/`) link and path field resolves cleanly.
 
-Remediate any findings (max 2 verification passes), stamp `verified` metadata on confirmed concepts, and log the verification result in `okf/log.md`.
+Remediate any findings (max 2 verification passes). If a concept was modified during remediation, update `generated.at` first, then stamp `verified` metadata using a non-human actor (e.g., `verified: { by: "process:okf-verifier", at: "<RFC-3339-UTC-date-time>" }` with `verified[].at >= generated.at`), and log the verification result in `okf/log.md`.
 
 ---
 
